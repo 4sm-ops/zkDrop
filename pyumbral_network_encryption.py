@@ -13,6 +13,8 @@ from umbral import KeyFrag, PublicKey, SecretKey, Signer, encrypt, decrypt_origi
 import sys
 import json
 
+from nucypher.characters.lawful import Ursula
+
 # Load JSON file with Aleo Keys
 
 def load_aleo_keys(profileName):
@@ -69,6 +71,12 @@ def pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_pu
     sender_verifying_key = sender_signing_key.public_key()
     sender_signer = Signer(sender_signing_key)
 
+
+    # Add Ursula node
+
+    seed_uri = 'https://lynx.nucypher.network:9151'
+    ursula = Ursula.from_seed_and_stake_info(seed_uri=seed_uri)
+
     # Encrypt with a public key
     # Now let’s encrypt data with Alice’s public key. Invocation of umbral.encrypt() returns both a capsule and a ciphertext. Note that anyone with Alice’s public key can perform this operation.
 
@@ -120,7 +128,7 @@ def pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_pu
     #         fp.write("%s\n" % item)
 
 
-def pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, encrypted_ciphertext, capsule_file, kfrags_file):
+def pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, encrypted_ciphertext, capsule_file):
 
     print("Received Ciphertext:")
 
@@ -259,5 +267,5 @@ recipient_public_key = recipient_secret_key.public_key()
 
 pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, recipient_profile_name, "Aleo + pyUmbral = Privacy")
 
-#pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, "ciphertext_from_RustamOne_1663628084_key.json", "capsule_from_RustamOne_1663628084_key.json", "kfrags_from_RustamOne_1663628084_key.json")
+#pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, "ciphertext_from_RustamOne_to_RustamTwo_1663694412", "capsule_from_RustamOne_to_RustamTwo_1663694412")
 
