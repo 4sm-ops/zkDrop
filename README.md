@@ -41,7 +41,7 @@ The customer’s data profile is stored locally in an encrypted format on their 
 
 The Key principle of Secure Data Storage is encryption of Data Storage using data encryption keys. Encryption keys are stored on user’s device and protected by (Password and OTP/biometrics). In case of device loss recovery mechanism would be provided to regenerate the encryption key however this will be covered in the next phase of the project.
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/f319c33a-3fe6-410e-9117-387b68d98725/Untitled.png)
+![Secure zero-knowledge file storage](https://raw.githubusercontent.com/4sm-ops/zkDrop/main/assets/zkdrop-file-storage.png)
 
 ## Secure zero-knowledge file transmission
 
@@ -65,13 +65,12 @@ If Bob received the capsule fragments in serialized form, he can verify that the
 
 Finally, Bob decrypts the re-encrypted ciphertext using his key.
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/5a9ff691-0d18-420d-bd12-f5c1f5264a0e/Untitled.png)
+![Secure zero-knowledge file transmission](https://raw.githubusercontent.com/4sm-ops/zkDrop/main/assets/zkdrop-secure-zk-file-transmission.png)
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/07771391-3e61-40f8-bc14-1e40f9bed2f3/Untitled.png)
 
 # Aleo Keys
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/17d63290-3082-4f5b-8a76-ff360ea6e873/Untitled.png)
+![Aleo Keys](https://raw.githubusercontent.com/4sm-ops/zkDrop/main/assets/zkdrop-aloe-keys.png)
 
 ## Key generation
 
