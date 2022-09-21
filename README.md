@@ -33,6 +33,7 @@ KYC (Know Your Customer), AML (Anti-Money Laundering) and CFT (Counter-Financing
 
 ## File/Data encryption
 
+![File/Data encryption](https://raw.githubusercontent.com/4sm-ops/zkDrop/main/assets/zkdrop-file-data-encryption.png)
 
 ## Secure zero-knowledge file storage
 
