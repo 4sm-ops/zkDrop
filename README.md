@@ -45,6 +45,8 @@ The Key principle of Secure Data Storage is encryption of Data Storage using dat
 
 ## Secure zero-knowledge file transmission
 
+In all cases, the PRE Application must be integrated with a storage and transport layer in order to function properly. Along with the transport of ciphertexts, a nucypher application also needs to include channels for Alice and Bob to discover each other’s public keys, and provide policy encrypting information to Bob and Enrico.
+
 Every data field is  encrypted at rest with zero knowledge of its contents while the customer is the only one who can access it.
 
 Other businesses who need to request personal data will also have to get the consent of the customer first.
