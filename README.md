@@ -17,7 +17,7 @@ Aleo based tool for file sharing and collaboration between addresses. Private, e
 3. Alex adds his file to application
 4. Application encrypts it and securely transfer to Bob
 
-### Use case #2 (Corp)
+## Use case #2 (Corp)
 
 1. Ms Liza wanted to open a bank account and she contacted one of the bank representatives Mr Vendy.
 2. Mr Vendy – after asking some basic details from Liza such as name, occupation etc advised her to obtain a digital ID for KYC purpose and asked her to use zkDrop.xyz
