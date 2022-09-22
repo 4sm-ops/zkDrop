@@ -13,7 +13,7 @@ from umbral import VerifiedKeyFrag, KeyFrag, PublicKey, SecretKey, Signer, encry
 import sys
 import json
 
-from "lib/keys.py" import load_aleo_keys, restore_keys_from_aleo
+from lib.keys import load_aleo_keys, restore_keys_from_aleo
 
 
 # Aleo Encrypt Secret [String]

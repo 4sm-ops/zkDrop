@@ -118,6 +118,8 @@ aleo_private_key = load_aleo_keys(sys.argv[2])
 recipient_secret_key = restore_keys_from_aleo(aleo_private_key)
 recipient_public_key = recipient_secret_key.public_key()
 
+print(bytes(recipient_public_key))
+
 # Get ciphertext, capsule and kfrags files
 
 encrypted_ciphertext = sys.argv[3]
