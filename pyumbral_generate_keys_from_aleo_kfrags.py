@@ -8,7 +8,7 @@ import time
 import hashlib
 import random
 
-from umbral import KeyFrag, PublicKey, SecretKey, Signer, encrypt, decrypt_original, generate_kfrags, reencrypt, CapsuleFrag, decrypt_reencrypted, Capsule
+from umbral import VerifiedKeyFrag, KeyFrag, PublicKey, SecretKey, Signer, encrypt, decrypt_original, generate_kfrags, reencrypt, CapsuleFrag, decrypt_reencrypted, Capsule
 
 import sys
 import json
@@ -106,18 +106,23 @@ def pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_pu
     file.write(bytes(capsule))
     file.close()
 
-    # Save kfrags to file
-    # The "rb" clause tells the open method to read the file as bytes
+    # # Save kfrags to file
+    # # The "rb" clause tells the open method to read the file as bytes
 
-    file = open("secret_sharing/kfrags_from_{}_{}_key.json".format(sender_profile_name, int(time.time()) ), 'wb')
-    file.write(bytes().join(map(bytes, kfrags)))
-    file.close()
+    # file = open("secret_sharing/kfrags_from_{}_{}_key.json".format(sender_profile_name, int(time.time()) ), 'wb')
+    # file.write(bytes().join(map(bytes, kfrags)))
+    # file.close()
 
 
-    # with open("secret_sharing/kfrags_from_{}_{}_key.json".format(sender_profile_name, int(time.time()) ), 'w') as fp:
-    #     for item in kfrags:
-    #         # write each item on a new line
-    #         fp.write("%s\n" % item)
+
+    with open("secret_sharing/kfrags_from_{}_{}_key_v2.json".format(sender_profile_name, int(time.time()) ), 'wb') as fp:
+        for item in kfrags:
+            # write each item on a new line
+
+            fp.write(bytes(item))
+
+            # print(item.serialized_size())
+
 
 
 def pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, encrypted_ciphertext, capsule_file, kfrags_file):
@@ -140,50 +145,40 @@ def pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, encrypted_c
 
     print(capsule)
 
-    print("Received kfrags:")
+
     # Read the kgrags file
 
-    # # empty list to read list from a file
-    # kfrags = []
+    print("Received kfrags:")
 
-    # # open file and read the content in a list
-    # with open("secret_sharing/{}".format(kfrags_file), 'r') as fp:
-    #     for line in fp:
-    #         # remove linebreak from a current name
-    #         # linebreak is the last character of each line
-    #         x = line[:-1]
+    received_kfrags = list()
 
-    #         # add current item to the list
-    #         kfrags.append(x)
+    with open("secret_sharing/{}".format(kfrags_file), "rb") as file:
+        plaintext = file.read(260)
 
-    # # display list
-    # print(type(kfrags))
+        while plaintext:
 
-    file = open("secret_sharing/{}".format(kfrags_file), "rb")   # The "rb" clause tells the open method to read the file as bytes
-    plaintext = file.read()
+            kfrags = VerifiedKeyFrag.from_verified_bytes(plaintext) # this approach does not work
+            plaintext = file.read(260)
 
-    kfrags = KeyFrag._from_exact_bytes(bytes(plaintext)) # this approach does not work
+            received_kfrags.append(kfrags)
 
 
+    print(received_kfrags)
 
-    print(kfrags)
 
     # recepient Public key
 
     recipient_public_key = recipient_secret_key.public_key()
 
-    # test = 123
-
     # # Bob receives a capsule
     # # Next, let’s generate a key pair for Bob, and pretend to send him the capsule 
     # # through a side channel like S3, IPFS, Google Cloud, Sneakernet, etc.
 
-    # bobs_capsule = capsule
+    bobs_capsule = capsule
 
     # # Bob fails to open the capsule
     # # If Bob attempts to open a capsule that was not encrypted for his public key, 
     # # or re-encrypted for him by Ursula, he will not be able to open it.
-
 
     # print("Decrypted original secret:")
     # # # This will fail!!!
@@ -197,39 +192,40 @@ def pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, encrypted_c
 
     # All kfrags from above
     # M - Threshold
-    kfrags = random.sample(kfrags, 10)      
+    # kfrags = random.sample(kfrags, 10)      
 
-    cfrags = list()                 # Bob's cfrag collection
-    for kfrag in kfrags:
+
+    cfrags = list()                 # Bob's cfrag collection   cfrag = capsule fragment
+    for kfrag in received_kfrags:
         cfrag = reencrypt(capsule=capsule, kfrag=kfrag)
         cfrags.append(cfrag)        # Bob collects a cfrag
 
-    # # Decryption
-    # # Bob checks the capsule fragments
-    # # If Bob received the capsule fragments in serialized form, he can verify that 
-    # # they are valid and really originate from Alice, using Alice’s public keys.
+    # Decryption
+    # Bob checks the capsule fragments
+    # If Bob received the capsule fragments in serialized form, he can verify that 
+    # they are valid and really originate from Alice, using Alice’s public keys.
 
-    # suspicious_cfrags = [CapsuleFrag.from_bytes(bytes(cfrag)) for cfrag in cfrags]
-    # cfrags = [cfrag.verify(capsule, verifying_pk=sender_public_key,
-    #                    delegating_pk=sender_public_key,
-    #                        receiving_pk=recipient_public_key,
-    #                        )
-    #           for cfrag in suspicious_cfrags]
+    suspicious_cfrags = [CapsuleFrag.from_bytes(bytes(cfrag)) for cfrag in cfrags]
+    cfrags = [cfrag.verify(capsule, verifying_pk=sender_public_key,
+                       delegating_pk=sender_public_key,
+                           receiving_pk=recipient_public_key,
+                           )
+              for cfrag in suspicious_cfrags]
     
     # # Bob opens the capsule
 
     # # Finally, Bob decrypts the re-encrypted ciphertext using his key.
 
-    # decrypted_cleartext = decrypt_reencrypted(receiving_sk=recipient_secret_key,
-    #                                 delegating_pk=sender_public_key,
-    #                                 capsule=capsule,
-    #                                 verified_cfrags=cfrags,
-    #                                 ciphertext=ciphertext)
+    decrypted_cleartext = decrypt_reencrypted(receiving_sk=recipient_secret_key,
+                                    delegating_pk=sender_public_key,
+                                    capsule=capsule,
+                                    verified_cfrags=cfrags,
+                                    ciphertext=ciphertext)
 
-    # # Verify decryption result
+    # Verify decryption result
 
-    # print("Bob decrypted text:")
-    # print(decrypted_cleartext)
+    print("Bob decrypted text:")
+    print(decrypted_cleartext)
 
 
 # MAIN #
@@ -260,5 +256,5 @@ recipient_public_key = recipient_secret_key.public_key()
 
 #pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, "Aleo + pyUmbral = Privacy")
 
-pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, "ciphertext_from_RustamOne_1663667848_key.json", "capsule_from_RustamOne_1663667848_key.json", "kfrags_from_RustamOne_1663667848_key.json")
+pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, "ciphertext_from_RustamOne_1663859024_key.json", "capsule_from_RustamOne_1663859024_key.json", "kfrags_from_RustamOne_1663859024_key_v2.json")
 
