@@ -1,0 +1,24 @@
+[package]
+name = "aleosignverify"
+version = "0.1.0"
+edition = "2023"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.snarkvm]
+version = "0.9.0"
+
+[dependencies.snarkvm-console]
+version = "0.9.0"
+
+#[dependencies.snarkvm-console-account]
+#version = "0.9.0"
+
+[dependencies.snarkvm-console-network]
+version = "0.9.0"
+
+[dependencies.snarkvm-utilities]
+version = "0.9.0"
+
+[dependencies.rand]
+version = "0.8"
