@@ -6,23 +6,23 @@ https://mercurial-origami-04e.notion.site/a6536fb7ac2642c1834b4c57a3d0ee63?v=ac2
 
 ## Repo structure:
 
-### Scripts: 
+#### Scripts: 
 aleo_create_account.sh - Create Aleo keys and store it in `aleo_keys` folder in JSON format 
 pyumbral_decrypt.py - Decrypt file using pyUmbral
 pyumbral_encrypt.py - Encrypt file using pyUmbral
 pyumbral_network_encryption.py - Encryption
 
-### Tools:
+#### Tools:
 aleo_sign_verify - Aleo sign/verify tool written in Rust
 
-### Folders:
+#### Folders:
 aleo_keys - Aleo keys in JSON files
 aleo_pyumbral_keys - temp file for pyUmbral
 assets - assets folder
 lib - python libs
 secret_sharing - pyUmbral file
 
-### GUI:
+#### GUI:
 zkDrop.py - gui zkDrop application
 
 # Description
