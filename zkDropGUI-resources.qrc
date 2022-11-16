@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>assets/square-aleo.png</file>
+    <file>assets/aleo.png</file>
+    <file>assets/logo.png</file>
+  </qresource>
+</RCC>
