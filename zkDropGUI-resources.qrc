@@ -1,5 +1,5 @@
 <RCC>
-  <qresource prefix="newPrefix">
+  <qresource>
     <file>assets/square-aleo.png</file>
     <file>assets/aleo.png</file>
     <file>assets/logo.png</file>

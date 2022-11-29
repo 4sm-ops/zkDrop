@@ -18,6 +18,14 @@ def load_aleo_keys(profileName):
 
     return data['AleoPrivateKey']
 
+
+def load_aleo_address(profileName):
+
+    f = open("aleo_keys/aleo_{}_key.json".format(profileName))
+    data = json.load(f)
+
+    return data['AleoAddress']
+
 # Aleo Private Key -> Umbral SecretKey PoC function
 
 def restore_keys_from_aleo(aleoPrivateKey):
@@ -61,7 +69,9 @@ def pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_pu
     # Encrypt with a public key
     # Now let’s encrypt data with Alice’s public key. Invocation of umbral.encrypt() returns both a capsule and a ciphertext. Note that anyone with Alice’s public key can perform this operation.
 
-    plaintext = bytes(secret_text,'UTF-8')
+    plaintext = secret_text
+
+#    plaintext = bytes(secret_text,'UTF-8')
 
     # encrypt with sender or recipient public key
 

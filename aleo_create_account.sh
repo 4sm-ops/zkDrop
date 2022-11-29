@@ -25,7 +25,7 @@ if [ $# -eq 0 ]
 
 	# generate Aleo keys using native Aleo CLI command
 
-	AleoKeys=$(aleo account new)
+	AleoKeys=$(aleo account new | grep 'Key\|Address')
 
 	# get 3 keys from Aleo CLI command output
 
@@ -48,7 +48,10 @@ if [ $# -eq 0 ]
 
 	# save Aleo keys in JSON file in aleo_keys folder
 
-	cd aleo_keys; echo $output_json > "aleo""_"$AccountName"_key.json"  	
+	python3 zkdrop_qr.py $AleoAddress
+
+	cd aleo_keys; echo $output_json > "aleo""_"$AccountName"_key.json"  
+
 fi
 
 

@@ -1,7 +1,10 @@
 /aleo_pyumbral_keys
 /aleo_keys
 /secret_sharing
+/qr
 .DS_Store
+*.encrypted
+zkdrop_database.db
 
 
 # will have compiled files and executables
