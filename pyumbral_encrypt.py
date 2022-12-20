@@ -13,65 +13,11 @@ from umbral import VerifiedKeyFrag, KeyFrag, PublicKey, SecretKey, Signer, encry
 import sys
 import json
 
-from lib.keys import load_aleo_keys, restore_keys_from_aleo
+from lib.keys import load_aleo_keys, restore_keys_from_aleo, pyumbral_encrypt_secret
 
 
-# Aleo Encrypt Secret [String]
-
-def pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, recipient_profile_name, secret_text):
-
-    sender_secret_key = sender_secret_key
-    sender_public_key = sender_secret_key.public_key()
-
-    sender_signing_key = sender_secret_key
-    sender_verifying_key = sender_signing_key.public_key()
-    sender_signer = Signer(sender_signing_key)
-
-    # Encrypt with a public key
-    # Now let’s encrypt data with Alice’s public key. Invocation of umbral.encrypt() returns both a capsule and a ciphertext. Note that anyone with Alice’s public key can perform this operation.
-
-    plaintext = bytes(secret_text,'UTF-8')
-
-    # encrypt with sender or recipient public key
-
-    #capsule, ciphertext = encrypt(recipient_public_key, plaintext)
-    capsule, ciphertext = encrypt(sender_public_key, plaintext)
-
-
-    # Alice grants access to Bob by generating kfrags
-    # When Alice wants to grant Bob access to view her encrypted data, 
-    # she creates re-encryption key fragments, or “kfrags”, which are next sent to N proxies or Ursulas.
-
-    kfrags = generate_kfrags(delegating_sk=sender_secret_key,
-                            receiving_pk=recipient_public_key,
-                            signer=sender_signer,
-                            threshold=10,
-                            shares=20)
-    # print("kfrags output")
-    # print(kfrags)
-
-    # Save Ciphertext to file
-
-    file = open("secret_sharing/ciphertext_from_{}_to_{}_{}".format(sender_profile_name, recipient_profile_name, int(time.time()) ), 'wb')
-    file.write(ciphertext)
-    file.close()
-
-    # Save Capsule to file
-
-    file = open("secret_sharing/capsule_from_{}_to_{}_{}".format(sender_profile_name, recipient_profile_name, int(time.time()) ), 'wb')
-
-    file.write(bytes(capsule))
-    file.close()
-
-    # # Save kfrags to file
-
-    with open("secret_sharing/kfrags_from_{}_to_{}_{}".format(sender_profile_name, recipient_profile_name, int(time.time()) ), 'wb') as fp:
-        for item in kfrags:
-
-            fp.write(bytes(item))
-
-            # print(item.serialized_size())
-
+import cryptography
+from cryptography.fernet import Fernet
 
 # MAIN #
 
@@ -92,4 +38,8 @@ recipient_public_key = recipient_secret_key.public_key()
 
 # Encryption
 
-pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, recipient_profile_name, "Aleo + pyUmbral = Privacy")
+key = Fernet.generate_key()
+
+print(key)
+
+pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, recipient_profile_name, key)
