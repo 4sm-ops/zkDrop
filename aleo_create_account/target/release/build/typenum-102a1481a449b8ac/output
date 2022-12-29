@@ -1,3 +1,0 @@
-cargo:rerun-if-changed=build/main.rs
-cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/rustamabdullin/crypto/aleo/zkDrop/aleo_create_account/target/release/build/typenum-102a1481a449b8ac/out/consts.rs
-cargo:rustc-env=TYPENUM_BUILD_OP=/Users/rustamabdullin/crypto/aleo/zkDrop/aleo_create_account/target/release/build/typenum-102a1481a449b8ac/out/op.rs
