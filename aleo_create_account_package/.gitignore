@@ -1,4 +1,9 @@
 /target
+received_files
+aleo_keys
+encrypted_files_tmp
+zkdrop_qt_tmp.py
+log.temp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
