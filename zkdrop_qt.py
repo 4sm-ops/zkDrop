@@ -97,8 +97,6 @@ class NewAccountDialog(QtWidgets.QDialog):
 
                 URL = "https://api.zkdrop.xyz/api/createaccount/" + new_keys["AleoAddress"] + "/" + self.newAccountName.text()
 
-                print(URL)
-
                 # sending get request and saving the response as response object
                 r = requests.get(url = URL)
 
@@ -198,7 +196,7 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(532, 658)
+        Dialog.resize(532, 715)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalLayout_1 = QtWidgets.QHBoxLayout()
@@ -269,14 +267,25 @@ class Ui_Dialog(object):
         self.groupBox_Recipient.setObjectName("groupBox_Recipient")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox_Recipient)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.label_5 = QtWidgets.QLabel(self.groupBox_Recipient)
-        self.label_5.setObjectName("label_5")
-        self.gridLayout_2.addWidget(self.label_5, 0, 0, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self.groupBox_Recipient)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout_2.addWidget(self.label_3, 3, 0, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem2, 2, 1, 1, 1)
+        self.gridLayout_2.addItem(spacerItem2, 4, 1, 1, 1)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.gridLayout_2.addItem(spacerItem3, 2, 1, 1, 1)
         self.recipientSelectBox = QtWidgets.QComboBox(self.groupBox_Recipient)
         self.recipientSelectBox.setObjectName("recipientSelectBox")
         self.gridLayout_2.addWidget(self.recipientSelectBox, 2, 0, 1, 1)
+        self.lineEdit_newRecipient = QtWidgets.QLineEdit(self.groupBox_Recipient)
+        self.lineEdit_newRecipient.setObjectName("lineEdit_newRecipient")
+        self.gridLayout_2.addWidget(self.lineEdit_newRecipient, 4, 0, 1, 1)
+        self.label_5 = QtWidgets.QLabel(self.groupBox_Recipient)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout_2.addWidget(self.label_5, 0, 0, 1, 1)
+        self.pushButton_newRecipient = QtWidgets.QPushButton(self.groupBox_Recipient)
+        self.pushButton_newRecipient.setObjectName("pushButton_newRecipient")
+        self.gridLayout_2.addWidget(self.pushButton_newRecipient, 4, 2, 1, 1)
         self.verticalLayout_2.addWidget(self.groupBox_Recipient)
         self.groupBox_EncryptionData = QtWidgets.QGroupBox(Dialog)
         self.groupBox_EncryptionData.setObjectName("groupBox_EncryptionData")
@@ -305,16 +314,16 @@ class Ui_Dialog(object):
         self.verticalLayout_3.addWidget(self.logFieldLabel)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.horizontalLayout_6.addWidget(self.scrollArea)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
-        self.horizontalLayout_6.addItem(spacerItem3)
+        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.horizontalLayout_6.addItem(spacerItem4)
         self.verticalLayout_2.addWidget(self.groupBox_EncryptionData)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.encryptButton = QtWidgets.QPushButton(Dialog)
         self.encryptButton.setObjectName("encryptButton")
         self.horizontalLayout_2.addWidget(self.encryptButton)
-        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem4)
+        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem5)
         self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setMaximumSize(QtCore.QSize(50, 50))
         self.label_2.setText("")
@@ -338,13 +347,17 @@ class Ui_Dialog(object):
         self.incomingFilesButton.setText(_translate("Dialog", "Received Files"))
         self.label_4.setText(_translate("Dialog", "Choose file to encrypt"))
         self.pushButton_OpenFile.setText(_translate("Dialog", "Open File"))
+        self.label_3.setText(_translate("Dialog", "or... add new recepient\'s Aleo address"))
         self.label_5.setText(_translate("Dialog", "Choose file recipient"))
+        self.pushButton_newRecipient.setText(_translate("Dialog", "Add Address"))
         self.groupBox_EncryptionData.setTitle(_translate("Dialog", "Log"))
         self.logFieldLabel.setText(_translate("Dialog", "TextLabel"))
         self.encryptButton.setText(_translate("Dialog", "Encrypt and Send"))
 
 
     def addAccountsMenu(self, Dialog):
+
+        self.accountSelectBox.clear()
 
         directory = 'aleo_keys'
 
@@ -356,7 +369,10 @@ class Ui_Dialog(object):
                 file = open(f)
                 data = json.load(file)
 
-                self.accountSelectBox.addItem(data['AccountName'])
+            # checking for files with empty Private Key field
+
+                if data['AleoPrivateKey'] != "":
+                    self.accountSelectBox.addItem(data['AccountName'])
 
         # check if no accounts created        
 
@@ -373,6 +389,8 @@ class Ui_Dialog(object):
 
 
     def addRecipientsMenu(self, Dialog):
+
+        self.recipientSelectBox.clear()
 
         directory = 'aleo_keys'
 
@@ -398,6 +416,8 @@ class Ui_Dialog(object):
         self.incomingFilesButton.clicked.connect(self.check_received_files)
 
         self.pushButton_newAccount.clicked.connect(self.create_new_account)
+
+        self.pushButton_newRecipient.clicked.connect(self.add_new_recipient)
 
     def active_account_changed(self, s):
 
@@ -512,7 +532,31 @@ class Ui_Dialog(object):
         dlg = NewAccountDialog()
         dlg.setWindowTitle("New Account")
         dlg.exec()
-        self.addAccountsMenu(self)
+        
+    def add_new_recipient(self):
+
+        if len(self.lineEdit_newRecipient.text()) != 63:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Aleo Account creation confirmation")
+            dlg.setText("Incorrect Aleo Address")
+            button = dlg.exec()
+        else:
+            URL = "https://api.zkdrop.xyz/api/account/" + self.lineEdit_newRecipient.text()
+
+            # sending get request and saving the response as response object
+            new_account = requests.get(url = URL).json()[0]
+
+            new_account["AleoPrivateKey"] = ""
+            new_account["AleoViewKey"] = ""
+            new_account["AccountName"] = new_account.pop("account_name")
+            new_account["AleoAddress"] = new_account.pop("aleo_address")
+
+            with open('aleo_keys/aleo_'+new_account["AccountName"]+'_key.json', 'w') as outfile:
+                outfile.write(json.dumps(new_account))
+
+            self.addRecipientsMenu(self)
+
+            
 
 # File encryption
 
