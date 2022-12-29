@@ -1,0 +1,16 @@
+[package]
+name = "aleo_create_account_package"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "aleo_create_account_package"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.17.3", features = ["extension-module"] }
+
+#  [dependencies.snarkvm-console]
+#  version = "0.9.0"
+

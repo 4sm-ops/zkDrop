@@ -1,0 +1,1417 @@
+🔗 Found pyo3 bindings
+🐍 Found CPython 3.7m at /Users/rustamabdullin/crypto/aleo/zkDrop/aleo_create_account_package/.env/bin/python
+error[E0463]: can't find crate for `core`
+  |
+  = note: the `x86_64-apple-darwin` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `compiler_builtins`
+
+
+error[E0463]: can't find crate for `alloc`
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:92:1
+   |
+92 | pub extern crate alloc;
+   | ^^^^^^^^^^^^^^^^^^^^^^^ can't find crate
+
+
+error[E0463]: can't find crate for `core`
+  |
+  = note: the `x86_64-apple-darwin` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `compiler_builtins`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:192:1
+    |
+192 | extern crate core as std;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error: cannot find macro `stringify` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:470:24
+    |
+470 |         f.debug_struct(stringify!(ScopeGuard))
+    |                        ^^^^^^^^^
+
+
+error: cannot find attribute `derive` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:212:3
+    |
+212 | #[derive(Debug)]
+    |   ^^^^^^
+
+
+error[E0463]: can't find crate for `core`
+  |
+  = note: the `x86_64-apple-darwin` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `compiler_builtins`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:104:5
+    |
+104 | use core::borrow::{Borrow, BorrowMut};
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:105:5
+    |
+105 | use core::cmp;
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `std`
+  |
+  = note: the `x86_64-apple-darwin` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:106:5
+    |
+106 | use core::fmt;
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:107:5
+    |
+107 | use core::hash::{Hash, Hasher};
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+  |
+  = note: the `x86_64-apple-darwin` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `compiler_builtins`
+
+
+error: aborting due to 2 previous errors
+
+
+For more information about this error, try `rustc --explain E0463`.
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:108:5
+    |
+108 | use core::hint::unreachable_unchecked;
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:109:5
+    |
+109 | use core::iter::{repeat, FromIterator, FusedIterator, IntoIterator};
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+  |
+  = note: the `x86_64-apple-darwin` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `compiler_builtins`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:110:5
+    |
+110 | use core::mem;
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:111:5
+    |
+111 | use core::mem::MaybeUninit;
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:112:5
+    |
+112 | use core::ops::{self, Range, RangeBounds};
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:113:5
+    |
+113 | use core::ptr::{self, NonNull};
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:114:5
+    |
+114 | use core::slice::{self, SliceIndex};
+    |     ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:804:13
+    |
+804 |         use core::ops::Bound::*;
+    |             ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error: cannot find attribute `derive` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:282:3
+    |
+282 | #[derive(Debug)]
+    |   ^^^^^^
+
+
+error: cannot find macro `write` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:295:9
+    |
+295 |         write!(f, "Allocation error: {:?}", self)
+    |         ^^^^^
+
+
+error: requires `sized` lang_item
+
+
+error: cannot find macro `panic` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:309:54
+    |
+309 |         Err(CollectionAllocErr::CapacityOverflow) => panic!("capacity overflow"),
+    |                                                      ^^^^^
+
+
+error: cannot find macro `cfg` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:240:12
+    |
+240 |         if cfg!(not(debug_assertions)) {
+    |            ^^^
+...
+485 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: `cfg` is in scope, but it is an attribute: `#[cfg]`
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `panic` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:243:13
+    |
+243 |             panic!($e);
+    |             ^^^^^
+...
+485 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: aborting due to 3 previous errors
+
+
+For more information about this error, try `rustc --explain E0463`.
+
+error: cannot find macro `cfg` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:240:12
+    |
+240 |         if cfg!(not(debug_assertions)) {
+    |            ^^^
+...
+492 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: `cfg` is in scope, but it is an attribute: `#[cfg]`
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `panic` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:243:13
+    |
+243 |             panic!($e);
+    |             ^^^^^
+...
+492 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `cfg` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:240:12
+    |
+240 |         if cfg!(not(debug_assertions)) {
+    |            ^^^
+...
+503 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: `cfg` is in scope, but it is an attribute: `#[cfg]`
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `panic` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:243:13
+    |
+243 |             panic!($e);
+    |             ^^^^^
+...
+503 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `cfg` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:240:12
+    |
+240 |         if cfg!(not(debug_assertions)) {
+    |            ^^^
+...
+510 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: `cfg` is in scope, but it is an attribute: `#[cfg]`
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `panic` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:243:13
+    |
+243 |             panic!($e);
+    |             ^^^^^
+...
+510 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `cfg` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:240:12
+    |
+240 |         if cfg!(not(debug_assertions)) {
+    |            ^^^
+...
+517 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: `cfg` is in scope, but it is an attribute: `#[cfg]`
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `panic` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:243:13
+    |
+243 |             panic!($e);
+    |             ^^^^^
+...
+517 |             _ => debug_unreachable!(),
+    |                  -------------------- in this macro invocation
+    |
+    = note: this error originates in the macro `debug_unreachable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+error: cannot find macro `assert` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:569:9
+    |
+569 |         assert!(
+    |         ^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:669:9
+    |
+669 |         assert!(len <= A::size());
+    |         ^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:818:9
+    |
+818 |         assert!(start <= end);
+    |         ^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:819:9
+    |
+819 |         assert!(end <= len);
+    |         ^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:900:13
+    |
+900 |             assert!(new_cap >= len);
+    |             ^^^^^^
+
+
+error: cannot find macro `debug_assert` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:911:17
+    |
+911 |                 debug_assert!(layout.size() > 0);
+    |                 ^^^^^^^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1065:13
+     |
+1065 |             assert!(index < len);
+     |             ^^^^^^
+
+
+error: cannot find macro `panic` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1089:17
+     |
+1089 |                 panic!("index exceeds length");
+     |                 ^^^^^
+
+
+error: cannot find macro `assert` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1105:9
+     |
+1105 |         assert!(lower_size_bound <= core::isize::MAX as usize); // Ensure offset is indexable
+     |         ^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1106:9
+     |
+1106 |         assert!(index + lower_size_bound >= index); // Protect against overflow
+     |         ^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1110:9
+     |
+1110 |         assert!(index <= old_len);
+     |         ^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1410:9
+     |
+1410 |         assert!(capacity > Self::inline_capacity());
+     |         ^^^^^^
+
+
+error: cannot find macro `assert` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1475:9
+     |
+1475 |         assert!(index <= len);
+     |         ^^^^^^
+
+
+error: cannot determine resolution for the macro `vec`
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1525:13
+     |
+1525 |             vec![elem; n].into()
+     |             ^^^
+     |
+     = note: import resolution is stuck, try simplifying macro imports
+
+
+error[E0463]: can't find crate for `core`
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:722:13
+    |
+722 |             core::usize::MAX
+    |             ^^^^ can't find crate
+    |
+    = note: the `x86_64-apple-darwin` target may not be installed
+    = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1533:23
+     |
+1533 |                     ::core::ptr::write(ptr.add(i), elem.clone());
+     |                       ^^^^ can't find crate
+     |
+     = note: the `x86_64-apple-darwin` target may not be installed
+     = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0433]: failed to resolve: use of undeclared type `PartialOrd`
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1871:9
+     |
+1871 |         PartialOrd::partial_cmp(&**self, &**other)
+     |         ^^^^^^^^^^ use of undeclared type `PartialOrd`
+
+
+error[E0432]: unresolved import `ffi::c_void`
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/libc-0.2.139/src/unix/mod.rs:1580:17
+     |
+1580 |         pub use ::ffi::c_void;
+     |                 ^^^^^^^^^^^^^
+
+
+error[E0433]: failed to resolve: use of undeclared type `Ord`
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1881:9
+     |
+1881 |         Ord::cmp(&**self, &**other)
+     |         ^^^ use of undeclared type `Ord`
+
+
+error[E0463]: can't find crate for `std`
+ --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:1:5
+  |
+1 | use std::iter::Peekable;
+  |     ^^^ can't find crate
+  |
+  = note: the `x86_64-apple-darwin` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1975:18
+     |
+1975 |         unsafe { core::slice::from_raw_parts(self.data.as_ptr().add(self.current), len) }
+     |                  ^^^^ can't find crate
+     |
+     = note: the `x86_64-apple-darwin` target may not be installed
+     = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0463]: can't find crate for `core`
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1981:18
+     |
+1981 |         unsafe { core::slice::from_raw_parts_mut(self.data.as_mut_ptr().add(self.current), len) }
+     |                  ^^^^ can't find crate
+     |
+     = note: the `x86_64-apple-darwin` target may not be installed
+     = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0405]: cannot find trait `Clone` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:275:9
+    |
+275 | impl<T: Clone> ExtendFromSlice<T> for Vec<T> {
+    |         ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `From` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:300:6
+    |
+300 | impl From<LayoutErr> for CollectionAllocErr {
+    |      ^^^^ not found in this scope
+
+
+error[E0463]: can't find crate for `std`
+ --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:2:5
+  |
+2 | use std::slice::Split;
+  |     ^^^ can't find crate
+  |
+  = note: the `x86_64-apple-darwin` target may not be installed
+  = help: consider downloading the target with `rustup target add x86_64-apple-darwin`
+
+
+error[E0412]: cannot find type `Result` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:306:26
+    |
+306 | fn infallible<T>(result: Result<T, CollectionAllocErr>) -> T {
+    |                          ^^^^^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Ok` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:308:9
+    |
+308 |         Ok(x) => x,
+    |         ^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Err` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:309:9
+    |
+309 |         Err(CollectionAllocErr::CapacityOverflow) => panic!("capacity overflow"),
+    |         ^^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Err` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:310:9
+    |
+310 |         Err(CollectionAllocErr::AllocErr { layout }) => alloc::alloc::handle_alloc_error(layout),
+    |         ^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Result` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:316:33
+    |
+316 | fn layout_array<T>(n: usize) -> Result<Layout, CollectionAllocErr> {
+    |                                 ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Sync` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:351:34
+    |
+351 | unsafe impl<'a, T: Sync + Array> Sync for Drain<'a, T> {}
+    |                                  ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Sync` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:351:20
+    |
+351 | unsafe impl<'a, T: Sync + Array> Sync for Drain<'a, T> {}
+    |                    ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Send` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:352:34
+    |
+352 | unsafe impl<'a, T: Send + Array> Send for Drain<'a, T> {}
+    |                                  ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Send` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:352:20
+    |
+352 | unsafe impl<'a, T: Send + Array> Send for Drain<'a, T> {}
+    |                    ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Iterator` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:354:25
+    |
+354 | impl<'a, T: 'a + Array> Iterator for Drain<'a, T> {
+    |                         ^^^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:358:27
+    |
+358 |     fn next(&mut self) -> Option<T::Item> {
+    |                           ^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:365:36
+    |
+365 |     fn size_hint(&self) -> (usize, Option<usize>) {
+    |                                    ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `DoubleEndedIterator` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:370:25
+    |
+370 | impl<'a, T: 'a + Array> DoubleEndedIterator for Drain<'a, T> {
+    |                         ^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:372:32
+    |
+372 |     fn next_back(&mut self) -> Option<T::Item> {
+    |                                ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `ExactSizeIterator` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:379:20
+    |
+379 | impl<'a, T: Array> ExactSizeIterator for Drain<'a, T> {
+    |                    ^^^^^^^^^^^^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Drop` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:388:25
+    |
+388 | impl<'a, T: 'a + Array> Drop for Drain<'a, T> {
+    |                         ^^^^ not found in this scope
+
+
+error[E0425]: cannot find value `drop` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:390:23
+    |
+390 |         self.for_each(drop);
+    |                       ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Send` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:526:30
+    |
+526 | unsafe impl<A: Array + Send> Send for SmallVecData<A> {}
+    |                              ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Send` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:526:24
+    |
+526 | unsafe impl<A: Array + Send> Send for SmallVecData<A> {}
+    |                        ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Sync` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:527:30
+    |
+527 | unsafe impl<A: Array + Sync> Sync for SmallVecData<A> {}
+    |                              ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Sync` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:527:24
+    |
+527 | unsafe impl<A: Array + Sync> Sync for SmallVecData<A> {}
+    |                        ^^^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Included` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:808:13
+    |
+808 |             Included(&n) => n,
+    |             ^^^^^^^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Excluded` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:809:13
+    |
+809 |             Excluded(&n) => n.checked_add(1).expect("Range start out of bounds"),
+    |             ^^^^^^^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Included` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:813:13
+    |
+813 |             Included(&n) => n.checked_add(1).expect("Range end out of bounds"),
+    |             ^^^^^^^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Excluded` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:814:13
+    |
+814 |             Excluded(&n) => n,
+    |             ^^^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:854:30
+    |
+854 |     pub fn pop(&mut self) -> Option<A::Item> {
+    |                              ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find value `None` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:858:24
+    |
+858 |                 return None;
+    |                        ^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Some` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:862:13
+    |
+862 |             Some(ptr::read(ptr.add(last_index)))
+    |             ^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Result` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:896:51
+    |
+896 |     pub fn try_grow(&mut self, new_cap: usize) -> Result<(), CollectionAllocErr> {
+    |                                                   ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Ok` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:903:28
+    |
+903 |                     return Ok(());
+    |                            ^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Ok` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:933:13
+    |
+933 |             Ok(())
+    |             ^^ not found in this scope
+
+
+error[E0412]: cannot find type `Result` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:950:57
+    |
+950 |     pub fn try_reserve(&mut self, additional: usize) -> Result<(), CollectionAllocErr> {
+    |                                                         ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Ok` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:956:20
+    |
+956 |             return Ok(());
+    |                    ^^ not found in this scope
+
+
+error[E0412]: cannot find type `Result` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:973:63
+    |
+973 |     pub fn try_reserve_exact(&mut self, additional: usize) -> Result<(), CollectionAllocErr> {
+    |                                                               ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Ok` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:976:20
+    |
+976 |             return Ok(());
+    |                    ^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Some` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1135:21
+     |
+1135 |                     Some(x) => x,
+     |                     ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Drop` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1169:17
+     |
+1169 |         impl<T> Drop for DropOnPanic<T> {
+     |                 ^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Result` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1209:32
+     |
+1209 |     pub fn into_inner(self) -> Result<A, Self> {
+     |                                ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Err` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1212:13
+     |
+1212 |             Err(self)
+     |             ^^^------
+     |             |
+     |             help: try calling `Err` as a method: `self.Err()`
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Ok` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1217:17
+     |
+1217 |                 Ok(data.into_inline().assume_init())
+     |                 ^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnMut` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1227:22
+     |
+1227 |     pub fn retain<F: FnMut(&mut A::Item) -> bool>(&mut self, mut f: F) {
+     |                      ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnMut` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1245:26
+     |
+1245 |     pub fn retain_mut<F: FnMut(&mut A::Item) -> bool>(&mut self, f: F) {
+     |                          ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `PartialEq` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1252:18
+     |
+1252 |         A::Item: PartialEq<A::Item>,
+     |                  ^^^^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnMut` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1260:12
+     |
+1260 |         F: FnMut(&mut A::Item, &mut A::Item) -> bool,
+     |            ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnMut` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1292:12
+     |
+1292 |         F: FnMut(&mut A::Item) -> K,
+     |            ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `PartialEq` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1293:12
+     |
+1293 |         K: PartialEq<K>,
+     |            ^^^^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnMut` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1325:12
+     |
+1325 |         F: FnMut() -> A::Item,
+     |            ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Copy` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1436:14
+     |
+1436 |     A::Item: Copy,
+     |              ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Clone` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1498:14
+     |
+1498 |     A::Item: Clone,
+     |              ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `AsRef` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1563:16
+     |
+1563 | impl<A: Array> AsRef<[A::Item]> for SmallVec<A> {
+     |                ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `AsMut` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1570:16
+     |
+1570 | impl<A: Array> AsMut<[A::Item]> for SmallVec<A> {
+     |                ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `From` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1695:20
+     |
+1695 | impl<'a, A: Array> From<&'a [A::Item]> for SmallVec<A>
+     |                    ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Clone` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1697:14
+     |
+1697 |     A::Item: Clone,
+     |              ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `From` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1712:16
+     |
+1712 | impl<A: Array> From<Vec<A::Item>> for SmallVec<A> {
+     |                ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `From` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1719:16
+     |
+1719 | impl<A: Array> From<A> for SmallVec<A> {
+     |                ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Copy` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1743:14
+     |
+1743 |     A::Item: Copy,
+     |              ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Extend` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1759:16
+     |
+1759 | impl<A: Array> Extend<A::Item> for SmallVec<A> {
+     |                ^^^^^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Some` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1769:24
+     |
+1769 |                 if let Some(out) = iter.next() {
+     |                        ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Default` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1793:16
+     |
+1793 | impl<A: Array> Default for SmallVec<A> {
+     |                ^^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Drop` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1815:16
+     |
+1815 | impl<A: Array> Drop for SmallVec<A> {
+     |                ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Clone` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1828:16
+     |
+1828 | impl<A: Array> Clone for SmallVec<A>
+     |                ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Clone` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1830:14
+     |
+1830 |     A::Item: Clone,
+     |              ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `PartialEq` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1853:26
+     |
+1853 | impl<A: Array, B: Array> PartialEq<SmallVec<B>> for SmallVec<A>
+     |                          ^^^^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `PartialEq` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1855:14
+     |
+1855 |     A::Item: PartialEq<B::Item>,
+     |              ^^^^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Eq` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1863:16
+     |
+1863 | impl<A: Array> Eq for SmallVec<A> where A::Item: Eq {}
+     |                ^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Eq` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1863:50
+     |
+1863 | impl<A: Array> Eq for SmallVec<A> where A::Item: Eq {}
+     |                                                  ^^ not found in this scope
+
+
+error[E0405]: cannot find trait `PartialOrd` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1865:16
+     |
+1865 | impl<A: Array> PartialOrd for SmallVec<A>
+     |                ^^^^^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `PartialOrd` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1867:14
+     |
+1867 |     A::Item: PartialOrd,
+     |              ^^^^^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1870:51
+     |
+1870 |     fn partial_cmp(&self, other: &SmallVec<A>) -> Option<cmp::Ordering> {
+     |                                                   ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Ord` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1875:16
+     |
+1875 | impl<A: Array> Ord for SmallVec<A>
+     |                ^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Ord` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1877:14
+     |
+1877 |     A::Item: Ord,
+     |              ^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Send` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1894:23
+     |
+1894 | unsafe impl<A: Array> Send for SmallVec<A> where A::Item: Send {}
+     |                       ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Send` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1894:59
+     |
+1894 | unsafe impl<A: Array> Send for SmallVec<A> where A::Item: Send {}
+     |                                                           ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Clone` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1916:24
+     |
+1916 | impl<A: Array + Clone> Clone for IntoIter<A>
+     |                        ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Clone` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1916:17
+     |
+1916 | impl<A: Array + Clone> Clone for IntoIter<A>
+     |                 ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Clone` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1918:14
+     |
+1918 |     A::Item: Clone,
+     |              ^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Drop` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1925:16
+     |
+1925 | impl<A: Array> Drop for IntoIter<A> {
+     |                ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Iterator` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1931:16
+     |
+1931 | impl<A: Array> Iterator for IntoIter<A> {
+     |                ^^^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1935:27
+     |
+1935 |     fn next(&mut self) -> Option<A::Item> {
+     |                           ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find value `None` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1937:13
+     |
+1937 |             None
+     |             ^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Some` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1942:17
+     |
+1942 |                 Some(ptr::read(self.data.as_ptr().add(current)))
+     |                 ^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1948:36
+     |
+1948 |     fn size_hint(&self) -> (usize, Option<usize>) {
+     |                                    ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Some` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1950:16
+     |
+1950 |         (size, Some(size))
+     |                ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `DoubleEndedIterator` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1954:16
+     |
+1954 | impl<A: Array> DoubleEndedIterator for IntoIter<A> {
+     |                ^^^^^^^^^^^^^^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1956:32
+     |
+1956 |     fn next_back(&mut self) -> Option<A::Item> {
+     |                                ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find value `None` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1958:13
+     |
+1958 |             None
+     |             ^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Some` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1962:17
+     |
+1962 |                 Some(ptr::read(self.data.as_ptr().add(self.end)))
+     |                 ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `ExactSizeIterator` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:1968:16
+     |
+1968 | impl<A: Array> ExactSizeIterator for IntoIter<A> {}
+     |                ^^^^^^^^^^^^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Drop` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:2054:10
+     |
+2054 | impl<'a> Drop for SetLenOnDrop<'a> {
+     |          ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Copy` in this scope
+    --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/smallvec-1.10.0/src/lib.rs:2126:14
+     |
+2126 |     A::Item: Copy,
+     |              ^^^^ not found in this scope
+
+
+error: aborting due to 140 previous errors
+
+
+Some errors have detailed explanations: E0405, E0412, E0425, E0433, E0463, E0531.
+
+For more information about an error, try `rustc --explain E0405`.
+
+error: requires `copy` lang_item
+
+
+error: aborting due to 4 previous errors
+
+
+Some errors have detailed explanations: E0432, E0463.
+
+For more information about an error, try `rustc --explain E0432`.
+
+error[E0405]: cannot find trait `FnOnce` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:299:14
+    |
+299 |     where F: FnOnce(T),
+    |              ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnOnce` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:309:14
+    |
+309 |     where F: FnOnce(T),
+    |              ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnOnce` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:368:14
+    |
+368 |     where F: FnOnce(T)
+    |              ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Sync` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:422:22
+    |
+422 | unsafe impl<T, F, S> Sync for ScopeGuard<T, F, S>
+    |                      ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Sync` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:423:14
+    |
+423 |     where T: Sync,
+    |              ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnOnce` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:424:14
+    |
+424 |           F: FnOnce(T),
+    |              ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnOnce` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:429:14
+    |
+429 |     where F: FnOnce(T),
+    |              ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnOnce` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:440:14
+    |
+440 |     where F: FnOnce(T),
+    |              ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Drop` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:448:15
+    |
+448 | impl<T, F, S> Drop for ScopeGuard<T, F, S>
+    |               ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnOnce` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:449:14
+    |
+449 |     where F: FnOnce(T),
+    |              ^^^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `FnOnce` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:466:14
+    |
+466 |           F: FnOnce(T),
+    |              ^^^^^^ not found in this scope
+
+
+error: aborting due to 16 previous errors
+
+
+Some errors have detailed explanations: E0405, E0463.
+
+For more information about an error, try `rustc --explain E0405`.
+
+error[E0433]: failed to resolve: use of undeclared type `String`
+ --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:7:5
+  |
+7 |     String::from_utf8(unindented).unwrap()
+  |     ^^^^^^ use of undeclared type `String`
+
+
+error[E0433]: failed to resolve: use of undeclared type `Vec`
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:26:22
+   |
+26 |     let mut result = Vec::with_capacity(s.len());
+   |                      ^^^ use of undeclared type `Vec`
+
+
+error[E0412]: cannot find type `String` in this scope
+ --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:4:29
+  |
+4 | pub fn unindent(s: &str) -> String {
+  |                             ^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Vec` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:12:36
+   |
+12 | pub fn unindent_bytes(s: &[u8]) -> Vec<u8> {
+   |                                    ^^^ not found in this scope
+
+
+error[E0412]: cannot find type `String` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:50:19
+   |
+50 |     type Output = String;
+   |                   ^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `String` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:57:19
+   |
+57 | impl Unindent for String {
+   |                   ^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `String` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:58:19
+   |
+58 |     type Output = String;
+   |                   ^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Vec` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:66:19
+   |
+66 |     type Output = Vec<u8>;
+   |                   ^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Sized` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:73:14
+   |
+73 | impl<'a, T: ?Sized + Unindent> Unindent for &'a T {
+   |              ^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:82:33
+   |
+82 | fn count_spaces(line: &[u8]) -> Option<usize> {
+   |                                 ^^^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Some` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:85:20
+   |
+85 |             return Some(i);
+   |                    ^^^^ not found in this scope
+
+
+error[E0425]: cannot find value `None` in this scope
+  --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:88:5
+   |
+88 |     None
+   |     ^^^^ not found in this scope
+
+
+error[E0405]: cannot find trait `Iterator` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:116:10
+    |
+116 | impl<'a> Iterator for Lines<'a> {
+    |          ^^^^^^^^ not found in this scope
+
+
+error[E0412]: cannot find type `Option` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:119:27
+    |
+119 |     fn next(&mut self) -> Option<Self::Item> {
+    |                           ^^^^^^ not found in this scope
+
+
+error[E0531]: cannot find tuple struct or tuple variant `Some` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:122:13
+    |
+122 |             Some(fragment) => {
+    |             ^^^^ not found in this scope
+
+
+error[E0425]: cannot find value `None` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:124:21
+    |
+124 |                     None
+    |                     ^^^^ not found in this scope
+
+
+error[E0425]: cannot find function, tuple struct or tuple variant `Some` in this scope
+   --> /Users/rustamabdullin/.cargo/registry/src/github.com-1ecc6299db9ec823/unindent-0.1.11/src/unindent.rs:126:21
+    |
+126 |                     Some(fragment)
+    |                     ^^^^ not found in this scope
+
+
+error: aborting due to 20 previous errors
+
+
+Some errors have detailed explanations: E0405, E0412, E0425, E0433, E0463, E0531.
+
+For more information about an error, try `rustc --explain E0405`.
+

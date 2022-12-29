@@ -5,7 +5,7 @@
 .DS_Store
 *.encrypted
 zkdrop_database.db
-
+/received_files
 
 # will have compiled files and executables
 aleo_sign_verify/debug/

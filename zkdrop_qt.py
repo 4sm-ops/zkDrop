@@ -1,5 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
+from PyQt6.QtSql import QSqlDatabase, QSqlQuery
 
 import os
 import sys
@@ -13,16 +13,100 @@ from time import sleep
 import hashlib
 from cryptography.fernet import Fernet
 
+# QR Libs
+import qrcode
+from PIL import Image
+from PIL.ImageQt import ImageQt
+
 ###
 # My Libs
 ###
 
 from lib.keys import load_aleo_keys, restore_keys_from_aleo, pyumbral_encrypt_secret, load_aleo_address, pyumbral_decrypt_secret
+import aleo_python
+
+# New accounts dialog
+
+class NewAccountDialog(QtWidgets.QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("zkDrop | Create New Account")
+
+        self.layout = QtWidgets.QVBoxLayout()
+        message = QtWidgets.QLabel("Create new account")
+
+        message1 = QtWidgets.QLabel("Account name")
+        self.newAccountName = QtWidgets.QLineEdit()
+
+        newAccountButton = QtWidgets.QPushButton()
+        newAccountButton.setObjectName("encryptButton")
+        newAccountButton.setText("Create new account")
+
+        self.resize(500, 300)
+        # Set up the model
+
+        self.layout.addWidget(message)
+
+        self.layout.addWidget(message1)
+        self.layout.addWidget(self.newAccountName)
+
+        self.layout.addWidget(newAccountButton)
+
+        self.setLayout(self.layout)
+
+        newAccountButton.clicked.connect(self.createNewAleoKeys)
+
+    def createNewAleoKeys(self):
+
+        new_keys = json.loads(aleo_python.new_keys())
+
+        new_keys["AccountName"] = self.newAccountName.text()
+
+        # check existing accounts
+
+        file_exists = os.path.exists('aleo_keys/aleo_'+self.newAccountName.text()+'_key.json')
+
+        if self.newAccountName.text() == "":
+
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Aleo Account creation confirmation")
+            dlg.setText("Empty account name")
+            button = dlg.exec()
+
+        else:
+
+            if file_exists:
+
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Aleo Account creation confirmation")
+                dlg.setText("Account name is exists. Please choose different name")
+                button = dlg.exec()
+
+            else:
+                with open('aleo_keys/aleo_'+self.newAccountName.text()+'_key.json', 'w') as outfile:
+                    outfile.write(json.dumps(new_keys))
+
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Aleo Account creation confirmation")
+                dlg.setText("New account is created")
+                button = dlg.exec()
+
+                if button == QtWidgets.QMessageBox.StandardButton.Ok:
+                    self.close()
+
+                URL = "https://api.zkdrop.xyz/api/createaccount/" + new_keys["AleoAddress"] + "/" + self.newAccountName.text()
+
+                print(URL)
+
+                # sending get request and saving the response as response object
+                r = requests.get(url = URL)
+
 
 # Received files dialog
 
 class ReceivedFilesDialog(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self, account_name):
         super().__init__()
 
         self.setWindowTitle("zkDrop | File Browser")
@@ -43,8 +127,14 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         db_con = QSqlDatabase.addDatabase("QSQLITE")
         db_con.setDatabaseName("zkdrop_database.db")
 
+        aleo_address = load_aleo_address(account_name)
+        print("query local database for address:")
+        print(aleo_address)
+
         db_con.open()
-        query = QSqlQuery("SELECT aleo_address, file_ipfs, status FROM ZKDROP_FILES")
+        query_text = "SELECT aleo_address, file_ipfs, status FROM ZKDROP_FILES where aleo_address = \"{}\"".format(aleo_address)
+        print(query_text)
+        query = QSqlQuery(query_text)
 
         while query.next():
             rows = self.tableFiles.rowCount()
@@ -67,8 +157,6 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         for idx in self.tableFiles.selectionModel().selectedIndexes():
             row_number = idx.row()
             column_number = idx.column()
-
-        # print(self.tableFiles.item(idx.row(),1).text())
         
         ipfs_client = ipfshttpclient.connect()
 
@@ -102,9 +190,6 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         fernet = Fernet(decrypted_key)
         decrypted_data = fernet.decrypt(received_data, 24*60*60)
 
-        print(decrypted_data)
-
-
         with open("received_files/"+self.tableFiles.item(idx.row(),1).text()+'.txt', 'wb') as f:
             f.write(decrypted_data)
 
@@ -137,6 +222,9 @@ class Ui_Dialog(object):
         self.label_PublicKey = QtWidgets.QLabel(self.groupBox)
         self.label_PublicKey.setObjectName("label_PublicKey")
         self.verticalLayout.addWidget(self.label_PublicKey)
+        self.pushButton_newAccount = QtWidgets.QPushButton(self.groupBox)
+        self.pushButton_newAccount.setObjectName("pushButton_newAccount")
+        self.verticalLayout.addWidget(self.pushButton_newAccount)
         self.horizontalLayout_1.addWidget(self.groupBox)
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setText("")
@@ -199,7 +287,7 @@ class Ui_Dialog(object):
         self.scrollArea.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 446, 77))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 446, 76))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_3.setContentsMargins(-1, 0, -1, 0)
@@ -245,6 +333,7 @@ class Ui_Dialog(object):
         self.label_Static_YourAleoAccount.setText(_translate("Dialog", "Your Aleo Account"))
         self.label_AccountName.setText(_translate("Dialog", "Account Name: "))
         self.label_PublicKey.setText(_translate("Dialog", "Public Key:"))
+        self.pushButton_newAccount.setText(_translate("Dialog", "Create new Aleo account"))
         self.label_FilesUnread.setText(_translate("Dialog", "TextLabel"))
         self.incomingFilesButton.setText(_translate("Dialog", "Received Files"))
         self.label_4.setText(_translate("Dialog", "Choose file to encrypt"))
@@ -254,12 +343,12 @@ class Ui_Dialog(object):
         self.logFieldLabel.setText(_translate("Dialog", "TextLabel"))
         self.encryptButton.setText(_translate("Dialog", "Encrypt and Send"))
 
+
     def addAccountsMenu(self, Dialog):
 
         directory = 'aleo_keys'
 
-        # iterate over files in
-        # that directory
+        # iterate over files in that directory
         for filename in os.listdir(directory):
             f = os.path.join(directory, filename)
             # checking if it is a file
@@ -278,8 +367,7 @@ class Ui_Dialog(object):
 
         directory = 'aleo_keys'
 
-        # iterate over files in
-        # that directory
+        # iterate over files in that directory
         for filename in os.listdir(directory):
             f = os.path.join(directory, filename)
             # checking if it is a file
@@ -300,6 +388,8 @@ class Ui_Dialog(object):
 
         self.incomingFilesButton.clicked.connect(self.check_received_files)
 
+        self.pushButton_newAccount.clicked.connect(self.create_new_account)
+
     def active_account_changed(self, s):
 
         sender_profile_name = s
@@ -310,14 +400,10 @@ class Ui_Dialog(object):
 
         aleo_address = load_aleo_address(sender_profile_name)
 
-        print(aleo_address)
-
-        # print(sender_profile_name)
-
         self.label_AccountName.setText("Account Name: " + sender_profile_name)
         self.label_PublicKey.setText("Account Public Key: " + str(sender_public_key))
 
-        self.label.setPixmap(QtGui.QPixmap("qr/zkdrop_"+aleo_address+".png").scaled(200, 200))
+        self.generate_qr(aleo_address)
         
         self.ui_logging("Current profile: " + sender_profile_name)
 
@@ -329,6 +415,58 @@ class Ui_Dialog(object):
 
             self.label_FilesUnread.setText("Unread files: " + str(len(sql_select.fetchall())))
 
+    def generate_qr(self, s):
+
+        # taking image which user wants
+        # in the QR code center
+        Logo_link = 'assets/icon-128.png'
+
+        logo = Image.open(Logo_link)
+
+        white_logo = Image.new("RGBA", logo.size, "WHITE") # Create a white rgba background
+        white_logo.paste(logo, (0, 0), logo)
+
+        # taking base width
+        basewidth = 70
+
+        # adjust image size
+        wpercent = (basewidth/float(white_logo.size[0]))
+        hsize = int((float(white_logo.size[1])*float(wpercent)))
+        white_logo = white_logo.resize((basewidth, hsize), Image.ANTIALIAS)
+
+        QRcode = qrcode.QRCode(
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            border=1,
+            box_size=7,
+            version=1
+        )
+
+        # taking url or text
+        url = 'https://www.zkdrop.xyz/api/account/' + s
+
+        # adding URL or text to QRcode
+        QRcode.add_data(url)
+
+        # generating QR code
+        QRcode.make()
+
+        # taking color name from user
+        QRcolor = 'Black'
+
+        # adding color to QR code
+        QRimg = QRcode.make_image(
+            fill_color=QRcolor, back_color="white").convert('RGB')
+
+        # set size of QR code
+        pos = ((QRimg.size[0] - white_logo.size[0]) // 2,
+            (QRimg.size[1] - white_logo.size[1]) // 2)
+        QRimg.paste(white_logo, pos)
+
+        # save the QR code generated
+        
+        qim = ImageQt(QRimg)
+        self.label.setPixmap(QtGui.QPixmap.fromImage(qim).scaled(200, 200))
+
     def recipient_account_changed(self, s):
 
         sender_profile_name = s
@@ -337,7 +475,7 @@ class Ui_Dialog(object):
 
     def getfile(self):
         fname = QtWidgets.QFileDialog.getOpenFileName(None, 'Open File')
-        # print(fname[0])
+
         self.lineEdit.setText(fname[0])
 
         self.ui_logging("Selected file:\n" + fname[0])
@@ -356,9 +494,16 @@ class Ui_Dialog(object):
 
     def check_received_files(self):
         
-        dlg = ReceivedFilesDialog()
+        dlg = ReceivedFilesDialog(self.accountSelectBox.currentText())
         dlg.setWindowTitle("Received files")
         dlg.exec()
+
+    def create_new_account(self):
+        
+        dlg = NewAccountDialog()
+        dlg.setWindowTitle("New Account")
+        dlg.exec()
+        self.addAccountsMenu(self)
 
 # File encryption
 
@@ -374,13 +519,14 @@ def encrypt_file():
     recipient_secret_key = restore_keys_from_aleo(aleo_private_key)
     recipient_public_key = recipient_secret_key.public_key()
 
+    sender_address = load_aleo_address(sender_profile_name)
     recipient_address = load_aleo_address(recipient_profile_name)
 
     # file encryption key
     key = Fernet.generate_key()
 
     # file itself
-    #  Open the file to encrypt
+    # Open the file to encrypt
     with open(ui.lineEdit.text(), 'rb') as f:
         data = f.read()
 
@@ -392,15 +538,10 @@ def encrypt_file():
 
     ciphertext = pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, recipient_profile_name, key, data_md5_hash)
 
-    # print key file
-    print(key)
-
     # encrypt file
     
     fernet = Fernet(key)
     encrypted = fernet.encrypt(data)
-
-    print(encrypted)
 
     # envelop has 32 bytes md5 sum + ciphertext from pyumbral + encryted data
 
@@ -421,16 +562,11 @@ def encrypt_file():
     new_file = ipfs_client.add("encrypted_files_tmp/" + file_name + '.encrypted')
 
     ui.ui_logging("IPFS data:\n" + str(new_file))
-
-    # print(new_file["Hash"])
-    # print(recipient_address)
     
-    URL = "http://localhost:3000/api/publish/" + recipient_address + "/" + new_file["Hash"]
+    URL = "https://api.zkdrop.xyz/api/publish/" + sender_address + "/" + recipient_address + "/" + new_file["Hash"]
 
     # sending get request and saving the response as response object
     r = requests.get(url = URL)
-
-    print(r)
 
 def sqs_listener():
 
@@ -438,55 +574,107 @@ def sqs_listener():
 
     while True:
         
-        aleo_address = load_aleo_address(ui.label_AccountName.text().removeprefix('Account Name: '))
+        # python 3.9 version aleo_address = load_aleo_address(ui.label_AccountName.text().removeprefix('Account Name: '))
 
-        print("checking api for address: " + aleo_address )
+        # python 3.7 version
 
-        URL = "http://localhost:3000/api/receive/" + aleo_address
+        aleo_address = load_aleo_address(ui.label_AccountName.text().replace('Account Name: ',''))
+
+        print(aleo_address)
+
+        ui.ui_logging("checking api for address: " + aleo_address )
+
+        URL = "https://api.zkdrop.xyz/api/receive/" + aleo_address
 
         # sending get request and saving the response as response object
         api_response = requests.get(url = URL)
 
         data = api_response.json()
 
-        # print(api_response.content)
-        # print(data["ipfs_hash"])
+        print(data)
 
-        if data["ipfs_hash"] == "":
+        if data[0]["ipfs_hash"] == "":
             print("nothing received")
 
         else:
-            print("received a file: " + data["ipfs_hash"])
 
-            with sqlite_db:
+            for data_item in data:
+                ui.ui_logging("received a file: " + data_item["ipfs_hash"])
 
-                # we need to check whether or not this file is available
+                print(data_item["ipfs_hash"])
 
-                query = "SELECT * FROM ZKDROP_FILES WHERE aleo_address == \"%s\" AND file_ipfs == \"%s\"" % (data["recipient_address"], data["ipfs_hash"])
+                with sqlite_db:
 
-                sql_select = sqlite_db.execute(query)
+                    # we need to check whether or not this file is available
 
-                # if not, then we add it to local database
-                
-                if len(sql_select.fetchall()) == 0:
-                    print("File is not exists, adding to local database")            
-                    sql_insert = "INSERT INTO ZKDROP_FILES (id, aleo_address, file_ipfs, status ) values(%d, \"%s\", \"%s\", \"%s\")" % (0, data["recipient_address"], data["ipfs_hash"], "unread")
-                    sqlite_db.execute(sql_insert)
+                    query = "SELECT * FROM ZKDROP_FILES WHERE aleo_address == \"%s\" AND file_ipfs == \"%s\"" % (data_item["recipient_address"], data_item["ipfs_hash"])
 
-                    query = "SELECT * FROM ZKDROP_FILES WHERE aleo_address == \"%s\" AND status == \"unread\"" % (aleo_address)
                     sql_select = sqlite_db.execute(query)
 
-                    ui.label_FilesUnread.setText("Unread files: " + str(len(sql_select.fetchall())))
+                    # if not, then we add it to local database
+                    
+                    if len(sql_select.fetchall()) == 0:
+                        print("File is not exists, adding to local database")            
+                        sql_insert = "INSERT INTO ZKDROP_FILES (id, aleo_address, file_ipfs, status ) values(%d, \"%s\", \"%s\", \"%s\")" % (0, data_item["recipient_address"], data_item["ipfs_hash"], "unread")
+                        sqlite_db.execute(sql_insert)
 
-                # if yes, we skip it
+                        query = "SELECT * FROM ZKDROP_FILES WHERE aleo_address == \"%s\" AND status == \"unread\"" % (aleo_address)
+                        sql_select = sqlite_db.execute(query)
 
-                else:
-                    print("File is already added to local database")
+                        ui.label_FilesUnread.setText("Unread files: " + str(len(sql_select.fetchall())))
+
+                    # if yes, we skip it
+
+                    else:
+                        print("File is already added to local database")
 
         sleep(30)
 
+
+def init_app():
+    # check db file 
+    file_exists = os.path.exists('zkdrop_database.db')
+
+    # create db tables
+    if not file_exists: 
+        conn = sqlite3.connect('zkdrop_database.db')
+        c = conn.cursor()
+
+        c.execute('''
+                CREATE TABLE IF NOT EXISTS "ZKDROP_FILES" (
+                    "id"	INTEGER,
+                    "aleo_address"	TEXT,
+                    "file_ipfs"	TEXT,
+                    "status"	TEXT
+                )
+                ''')
+                            
+        conn.commit()
+
+    # create folders:
+    # - encrypted_files_tmp
+    # - aleo_keys
+    # - received_files
+    
+    folder_exists = os.path.isdir('encrypted_files_tmp')
+    if not folder_exists:
+        os.mkdir('encrypted_files_tmp')
+
+    folder_exists = os.path.isdir('aleo_keys')
+    if not folder_exists:
+        os.mkdir('aleo_keys')    
+
+    folder_exists = os.path.isdir('received_files')
+    if not folder_exists:
+        os.mkdir('received_files')    
+
+
 if __name__ == "__main__":
+    
     import sys
+
+    init_app()
+
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
     ui = Ui_Dialog()
