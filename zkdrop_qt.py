@@ -358,6 +358,15 @@ class Ui_Dialog(object):
 
                 self.accountSelectBox.addItem(data['AccountName'])
 
+        # check if no accounts created        
+
+        if self.accountSelectBox.count() == 0:
+
+            dlg = NewAccountDialog()
+            dlg.setWindowTitle("New Account")
+            dlg.exec()
+            self.addAccountsMenu(self)
+
         self.active_account_changed(self.accountSelectBox.currentText())
 
         self.accountSelectBox.currentTextChanged.connect(self.active_account_changed)
