@@ -56,7 +56,7 @@ def restore_keys_from_aleo(aleoPrivateKey):
 
     return sk
 
-def pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, recipient_profile_name, secret_text, data_md5_hash):
+def pyumbral_encrypt_secret(sender_secret_key, recipient_public_key, secret_text, data_md5_hash):
 
     sender_secret_key = sender_secret_key
     sender_public_key = sender_secret_key.public_key()

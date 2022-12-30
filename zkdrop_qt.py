@@ -8,7 +8,7 @@ import sys
 import json
 import requests
 import sqlite3
-import ipfshttpclient
+# import ipfshttpclient
 import threading
 import pathlib
 import filetype
@@ -114,8 +114,18 @@ class NewAccountDialog(QtWidgets.QDialog):
                 URL = "https://api.zkdrop.xyz/api/createaccount/" + new_keys["AleoAddress"] + "/" + self.newAccountName.text() + "/" + str(hexlify(bytes(nucypher_public_key)), "utf-8")
 
                 # sending get request and saving the response as response object
-                r = requests.get(url = URL)
 
+                try:
+                    r = requests.get(url = URL,timeout=5)
+                    r.raise_for_status()
+                except requests.exceptions.HTTPError as errh:
+                    print ("Http Error:",errh)
+                except requests.exceptions.ConnectionError as errc:
+                    print ("Error Connecting:",errc)
+                except requests.exceptions.Timeout as errt:
+                    print ("Timeout Error:",errt)
+                except requests.exceptions.RequestException as err:
+                    print ("OOps: Something Else",err)
 
 # Received files dialog
 
@@ -200,7 +210,19 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
 
 
         URL = "https://zkdrop.infura-ipfs.io/ipfs/" + ipfs_hash
-        response = requests.get(URL)
+
+        try:
+            response = requests.get(url = URL,timeout=5)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt)
+        except requests.exceptions.RequestException as err:
+            print ("OOps: Something Else",err)
+
         open("received_files/received_tmp.zip", "wb").write(response.content)
 
 
@@ -234,9 +256,23 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         # Get Sender Profile name and keys
 
         URL = "https://api.zkdrop.xyz/api/account/" + recipient_address
+        
 
         # sending get request and saving the response as response object
-        sender_nucypher_address = requests.get(url = URL).json()[0]["nucypher_address"]
+
+        try:
+            r = requests.get(url = URL,timeout=5)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt)
+        except requests.exceptions.RequestException as err:
+            print ("OOps: Something Else",err)
+
+        sender_nucypher_address = r.json()[0]["nucypher_address"]
 
         # print(sender_nucypher_address)
 
@@ -485,7 +521,20 @@ class Ui_Dialog(QtWidgets.QDialog):
             URL = "https://api.zkdrop.xyz/api/account/" + self.lineEdit_newRecipient.text()
 
             # sending get request and saving the response as response object
-            new_account = requests.get(url = URL).json()[0]
+
+            try:
+                r = requests.get(url = URL,timeout=5)
+                r.raise_for_status()
+            except requests.exceptions.HTTPError as errh:
+                print ("Http Error:",errh)
+            except requests.exceptions.ConnectionError as errc:
+                print ("Error Connecting:",errc)
+            except requests.exceptions.Timeout as errt:
+                print ("Timeout Error:",errt)
+            except requests.exceptions.RequestException as err:
+                print ("OOps: Something Else",err)
+
+            new_account = r.json()[0]
 
             new_account["AleoPrivateKey"] = ""
             new_account["AleoViewKey"] = ""
@@ -499,83 +548,121 @@ class Ui_Dialog(QtWidgets.QDialog):
             
 # File encryption
 
-def encrypt_file():                                                                                     
-
-    sender_profile_name = ui.accountSelectBox.currentText()
-    aleo_private_key = load_aleo_keys(sender_profile_name)
-    sender_secret_key = restore_keys_from_aleo(aleo_private_key)
-    sender_public_key = sender_secret_key.public_key()
-
-    recipient_profile_name = ui.recipientSelectBox.currentText()
-    aleo_private_key = load_aleo_keys(recipient_profile_name)
-    recipient_secret_key = restore_keys_from_aleo(aleo_private_key)
-    recipient_public_key = recipient_secret_key.public_key()
-
-    sender_address = load_aleo_address(sender_profile_name)
-    recipient_address = load_aleo_address(recipient_profile_name)
-
-    # file encryption key
-    key = Fernet.generate_key()
-
-    # file itself
-    # Open the file to encrypt
-    with open(ui.lineEdit.text(), 'rb') as f:
-        data = f.read()
-
-    #file md5 sum (32 bytes)
-
-    data_md5_hash = hashlib.md5(data).hexdigest()
-
-    ui.ui_logging("File to be encrypted and sent to IPFS:\n" + ui.lineEdit.text())
-
-    ciphertext = pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, recipient_profile_name, key, data_md5_hash)
-
-    # encrypt file
+def encrypt_file():      
     
-    fernet = Fernet(key)
-    encrypted = fernet.encrypt(data)
+    file_size = os.path.getsize(ui.lineEdit.text())/1024
+    print(str(file_size) + " KB")   
 
-    # envelop has 32 bytes md5 sum + ciphertext from pyumbral + encryted data
+    if file_size > 512:
 
-    head, file_name = os.path.split(ui.lineEdit.text())
+        dlg = QtWidgets.QMessageBox(ui)
+        dlg.setWindowTitle("Aleo Account creation confirmation")
+        dlg.setText("File is too big. Consider upload less than 512 KB")
+        button = dlg.exec()
 
-    # Write the envelope file
-    with open("encrypted_files_tmp/" + file_name + '.encrypted', 'wb') as f:
-        f.write(data_md5_hash.encode())
-        f.write(ciphertext)
-        f.write(encrypted)
+    else: 
+                                                                           
+        sender_profile_name = ui.accountSelectBox.currentText()
+        aleo_private_key = load_aleo_keys(sender_profile_name)
+        sender_secret_key = restore_keys_from_aleo(aleo_private_key)
+        sender_public_key = sender_secret_key.public_key()
 
-    ui.ui_logging("File is encrypted and stored with \n" + ui.lineEdit.text()+'.encrypted' + " filename")
+        # get recipient data
 
-    # ipfs upload
+        recipient_profile_name = ui.recipientSelectBox.currentText()
+        sender_address = load_aleo_address(sender_profile_name)
+        recipient_address = load_aleo_address(recipient_profile_name)
 
-    # ipfs_client = ipfshttpclient.connect()
+        URL = "https://api.zkdrop.xyz/api/account/" + recipient_address
 
-    # new_file = ipfs_client.add("encrypted_files_tmp/" + file_name + '.encrypted')
+        try:
+            r = requests.get(url = URL,timeout=5)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt)
+        except requests.exceptions.RequestException as err:
+            print ("OOps: Something Else",err)
 
-    with ZipFile("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', 'w') as myzip:
-        myzip.write("encrypted_files_tmp/" + file_name + '.encrypted')
-        myzip.write("encrypted_files_tmp/capsule_{}".format(data_md5_hash))
-        myzip.write("encrypted_files_tmp/kfrags_{}".format(data_md5_hash))
-        myzip.write("encrypted_files_tmp/ciphertext_{}".format(data_md5_hash))
+        recipient_nucypher_address = r.json()[0]["nucypher_address"]
+
+        recipient_public_key = PublicKey.from_bytes(unhexlify(recipient_nucypher_address))
+
+        # file encryption key
+        key = Fernet.generate_key()
+
+        # file itself
+        # Open the file to encrypt
+        with open(ui.lineEdit.text(), 'rb') as f:
+            data = f.read()
+
+        #file md5 sum (32 bytes)
+
+        data_md5_hash = hashlib.md5(data).hexdigest()
+
+        ui.ui_logging("File to be encrypted and sent to IPFS:\n" + ui.lineEdit.text())
+
+        ciphertext = pyumbral_encrypt_secret(sender_secret_key, recipient_public_key, key, data_md5_hash)
+
+        # encrypt file
+        
+        fernet = Fernet(key)
+        encrypted = fernet.encrypt(data)
+
+        # envelop has 32 bytes md5 sum + ciphertext from pyumbral + encryted data
+
+        head, file_name = os.path.split(ui.lineEdit.text())
+
+        # Write the envelope file
+        with open("encrypted_files_tmp/" + file_name + '.encrypted', 'wb') as f:
+            f.write(data_md5_hash.encode())
+            f.write(ciphertext)
+            f.write(encrypted)
+
+        ui.ui_logging("File is encrypted and stored with \n" + ui.lineEdit.text()+'.encrypted' + " filename")
+
+        # ipfs upload
+
+        # ipfs_client = ipfshttpclient.connect()
+
+        # new_file = ipfs_client.add("encrypted_files_tmp/" + file_name + '.encrypted')
+
+        with ZipFile("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', 'w') as myzip:
+            myzip.write("encrypted_files_tmp/" + file_name + '.encrypted')
+            myzip.write("encrypted_files_tmp/capsule_{}".format(data_md5_hash))
+            myzip.write("encrypted_files_tmp/kfrags_{}".format(data_md5_hash))
+            myzip.write("encrypted_files_tmp/ciphertext_{}".format(data_md5_hash))
 
 
-    ipfs_file = open("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', "rb")
+        ipfs_file = open("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', "rb")
 
-    ipfs_url = "https://api.zkdrop.xyz/api/ipfs_upload"
+        ipfs_url = "https://api.zkdrop.xyz/api/ipfs_upload"
 
-    ipfs_response = requests.post(ipfs_url, files = {"file": ipfs_file})
+        ipfs_response = requests.post(ipfs_url, files = {"file": ipfs_file})
 
-    os.remove("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip') 
+        os.remove("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip') 
 
-    print(ipfs_response)
+        print(ipfs_response)
 
-    ui.ui_logging("IPFS data:\n" + str(ipfs_response.json()))
-    
-    URL = "https://api.zkdrop.xyz/api/publish/" + sender_address + "/" + recipient_address + "/" + ipfs_response.json()["Hash"]
+        ui.ui_logging("IPFS data:\n" + str(ipfs_response.json()))
+        
+        URL = "https://api.zkdrop.xyz/api/publish/" + sender_address + "/" + recipient_address + "/" + ipfs_response.json()["Hash"]
 
-    # sending get request and saving the response as response object
-    r = requests.get(url = URL)
+        # sending get request and saving the response as response object
+        try:
+            r = requests.get(url = URL,timeout=5)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt)
+        except requests.exceptions.RequestException as err:
+            print ("OOps: Something Else",err)
 
 def message_listener():
 
@@ -594,7 +681,18 @@ def message_listener():
         URL = "https://api.zkdrop.xyz/api/receive/" + aleo_address
 
         # sending get request and saving the response as response object
-        api_response = requests.get(url = URL)
+
+        try:
+            api_response = requests.get(url = URL,timeout=5)
+            api_response.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt)
+        except requests.exceptions.RequestException as err:
+            print ("OOps: Something Else",err)
 
         data = api_response.json()
 
