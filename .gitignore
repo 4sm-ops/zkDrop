@@ -6,6 +6,7 @@
 *.encrypted
 zkdrop_database.db
 /received_files
+/encrypted_files_tmp
 
 # will have compiled files and executables
 aleo_sign_verify/debug/
