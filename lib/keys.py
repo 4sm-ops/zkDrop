@@ -56,7 +56,6 @@ def restore_keys_from_aleo(aleoPrivateKey):
 
     return sk
 
-
 def pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_public_key, recipient_profile_name, secret_text, data_md5_hash):
 
     sender_secret_key = sender_secret_key
@@ -93,20 +92,20 @@ def pyumbral_encrypt_secret(sender_secret_key, sender_profile_name, recipient_pu
 
     # Save Ciphertext to file
 
-    file = open("secret_sharing/ciphertext_{}".format(data_md5_hash) , 'wb')
+    file = open("encrypted_files_tmp/ciphertext_{}".format(data_md5_hash) , 'wb')
     file.write(ciphertext)
     file.close()
 
     # Save Capsule to file
 
-    file = open("secret_sharing/capsule_{}".format(data_md5_hash) , 'wb')
+    file = open("encrypted_files_tmp/capsule_{}".format(data_md5_hash) , 'wb')
 
     file.write(bytes(capsule))
     file.close()
 
     # # Save kfrags to file
 
-    with open("secret_sharing/kfrags_{}".format(data_md5_hash) , 'wb') as fp:
+    with open("encrypted_files_tmp/kfrags_{}".format(data_md5_hash) , 'wb') as fp:
         for item in kfrags:
 
             fp.write(bytes(item))

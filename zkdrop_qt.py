@@ -1,17 +1,25 @@
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets, uic
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery
 
 import os
+import io
+import shutil
 import sys
 import json
 import requests
 import sqlite3
 import ipfshttpclient
 import threading
+import pathlib
+import filetype
+from zipfile import ZipFile
 from time import sleep
 
+from binascii import hexlify, unhexlify
 import hashlib
 from cryptography.fernet import Fernet
+
+from umbral import PublicKey
 
 # QR Libs
 import qrcode
@@ -95,7 +103,12 @@ class NewAccountDialog(QtWidgets.QDialog):
                 if button == QtWidgets.QMessageBox.StandardButton.Ok:
                     self.close()
 
-                URL = "https://api.zkdrop.xyz/api/createaccount/" + new_keys["AleoAddress"] + "/" + self.newAccountName.text()
+                nucypher_secret_key = restore_keys_from_aleo(new_keys["AleoPrivateKey"])
+                nucypher_public_key = nucypher_secret_key.public_key()
+
+                # print(str(hexlify(bytes(nucypher_public_key)), "utf-8")) 
+
+                URL = "https://api.zkdrop.xyz/api/createaccount/" + new_keys["AleoAddress"] + "/" + self.newAccountName.text() + "/" + str(hexlify(bytes(nucypher_public_key)), "utf-8")
 
                 # sending get request and saving the response as response object
                 r = requests.get(url = URL)
@@ -118,7 +131,7 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         # Set up the view
         self.tableFiles = QtWidgets.QTableWidget()
         self.tableFiles.setColumnCount(3)
-        self.tableFiles.setHorizontalHeaderLabels(["Aleo Address", "IPFS Hash", "Status"])
+        self.tableFiles.setHorizontalHeaderLabels(["Sender Address", "IPFS Hash", "Status"])
 
         self.tableFiles.doubleClicked.connect(self.selectFileToDecrypt)
 
@@ -126,25 +139,26 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         db_con.setDatabaseName("zkdrop_database.db")
 
         aleo_address = load_aleo_address(account_name)
-        print("query local database for address:")
-        print(aleo_address)
 
         db_con.open()
-        query_text = "SELECT aleo_address, file_ipfs, status FROM ZKDROP_FILES where aleo_address = \"{}\"".format(aleo_address)
-        print(query_text)
+        query_text = "SELECT sender_address, aleo_address, file_ipfs, status FROM ZKDROP_FILES where aleo_address = \"{}\"".format(aleo_address)
+
         query = QSqlQuery(query_text)
 
         while query.next():
             rows = self.tableFiles.rowCount()
             self.tableFiles.setRowCount(rows + 1)
             self.tableFiles.setItem(rows, 0, QtWidgets.QTableWidgetItem(query.value(0)))
-            self.tableFiles.setItem(rows, 1, QtWidgets.QTableWidgetItem(query.value(1)))
-            self.tableFiles.setItem(rows, 2, QtWidgets.QTableWidgetItem(query.value(2)))
+            self.tableFiles.setItem(rows, 1, QtWidgets.QTableWidgetItem(query.value(2)))
+            self.tableFiles.setItem(rows, 2, QtWidgets.QTableWidgetItem(query.value(3)))
 
         self.tableFiles.resizeColumnsToContents()
 
+        self.image_lbl = QtWidgets.QLabel()
+
         self.layout.addWidget(message)
         self.layout.addWidget(self.tableFiles)
+        self.layout.addWidget(self.image_lbl)
         self.setLayout(self.layout)
 
         db_con.close()
@@ -152,212 +166,294 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         
 
     def selectFileToDecrypt(self):
+
+        # get selected  item row and column
         for idx in self.tableFiles.selectionModel().selectedIndexes():
             row_number = idx.row()
             column_number = idx.column()
+
+
+        ipfs_hash = self.tableFiles.item(row_number,1).text()
+        recipient_address = self.tableFiles.item(row_number,0).text()
+
+        # clear pixmap
         
-        ipfs_client = ipfshttpclient.connect()
+        self.image_lbl.clear()
 
-        file_received = ipfs_client.cat(self.tableFiles.item(idx.row(),1).text())
+        # sample ipfs file on infura
+        # https://zkdrop.infura-ipfs.io/ipfs/QmPMykL31BSTnkLRvSHP7dQFD39CPnoaZg3r4Kv2hde4TC
 
-        received_md5 = file_received[:32].decode("utf-8") 
-        received_cyphertext = file_received[32:116]
-        received_data = file_received[116:]
+        # projectId = ""
+        # projectSecret = ""
+        # endpoint = "https://ipfs.infura.io:5001"
+ 
+        # ipfs_client = ipfshttpclient.connect('/dns/ipfs.infura.io/tcp/5001/https', auth=(projectId, projectSecret))
+
+        # file_received = ipfs_client.cat(self.tableFiles.item(row_number,1).text())
+
+
+        URL = "https://zkdrop.infura-ipfs.io/ipfs/" + ipfs_hash
+        response = requests.get(URL)
+        open("received_files/received_tmp.zip", "wb").write(response.content)
+
+
+        # received zip file with nucypher files and encrypted data
+
+        # with open("received_files/received_tmp.zip", 'wb') as f:
+        #     f.write(file_received)
+
+        ZipFile("received_files/received_tmp.zip").extractall(path="received_files/")
+
+        encrypted_file_path = sorted(pathlib.Path('received_files/encrypted_files_tmp/').glob('*.encrypted'))[0]
+    
+        with open(encrypted_file_path, "rb") as file_encrypted:
+            temp_file = file_encrypted.read()
+            received_md5 = temp_file[:32].decode("utf-8") 
+            received_cyphertext = temp_file[32:116]
+            received_data = temp_file[116:]
+
+        # print(received_md5)
+        # print(received_cyphertext)
+        # print(received_data)
 
         # Get Recipient Profile name and keys
 
-        recipient_profile_name = ui.label_AccountName.text().removeprefix('Account Name: ')
+        # python 3.9 version 
+        # recipient_profile_name = ui.label_AccountName.text().removeprefix('Account Name: ')
+
+        # python 3.7 version
+
+        recipient_profile_name = ui.label_AccountName.text().replace('Account Name: ','')
+        
         aleo_private_key = load_aleo_keys(recipient_profile_name)
         recipient_secret_key = restore_keys_from_aleo(aleo_private_key)
 
         # Get Sender Profile name and keys
 
-        sender_profile_name = "RustamOne"
-        aleo_private_key = load_aleo_keys(sender_profile_name)
-        sender_secret_key = restore_keys_from_aleo(aleo_private_key)
-        sender_public_key = sender_secret_key.public_key()
+        URL = "https://api.zkdrop.xyz/api/account/" + recipient_address
 
-        #files
+        # sending get request and saving the response as response object
+        sender_nucypher_address = requests.get(url = URL).json()[0]["nucypher_address"]
 
-        encrypted_ciphertext = "secret_sharing/ciphertext_"+received_md5
-        capsule_file = "secret_sharing/capsule_"+received_md5
-        kfrags_file = "secret_sharing/kfrags_"+received_md5
+        # print(sender_nucypher_address)
+
+        sender_public_key = PublicKey.from_bytes(unhexlify(sender_nucypher_address))
+
+        # nucypher files from archive
+
+        encrypted_ciphertext = "received_files/encrypted_files_tmp/ciphertext_"+received_md5
+        capsule_file = "received_files/encrypted_files_tmp/capsule_"+received_md5
+        kfrags_file = "received_files/encrypted_files_tmp/kfrags_"+received_md5
+
+        # decrypting key
 
         decrypted_key = pyumbral_decrypt_secret(recipient_secret_key, sender_public_key, encrypted_ciphertext, capsule_file, kfrags_file)
+
+        # decrypt data file
 
         fernet = Fernet(decrypted_key)
         decrypted_data = fernet.decrypt(received_data, 24*60*60)
 
-        with open("received_files/"+self.tableFiles.item(idx.row(),1).text()+'.txt', 'wb') as f:
+        # save file 
+
+        with open("received_files/"+encrypted_file_path.stem, 'wb') as f:
             f.write(decrypted_data)
+
+        # if file is image, then show it 
+
+        filename = "received_files/"+encrypted_file_path.stem
+
+        if filetype.is_image(filename):
+            print(f"{filename} is a valid image...")
+            self.image_lbl.setPixmap(QtGui.QPixmap("received_files/"+encrypted_file_path.stem))
+
+        # cleanup folders
+
+        try:
+            os.remove("received_files/received_tmp.zip")
+        except OSError as e:
+            # If it fails, inform the user.
+            print("Error: %s - %s." % (e.filename, e.strerror))
+
+        try:
+            shutil.rmtree("received_files/encrypted_files_tmp/")
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+        
 
 # Main UI dialog
 
-class Ui_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(532, 715)
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(Dialog)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.horizontalLayout_1 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_1.setObjectName("horizontalLayout_1")
-        self.groupBox = QtWidgets.QGroupBox(Dialog)
-        self.groupBox.setTitle("")
-        self.groupBox.setObjectName("groupBox")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.label_Static_YourAleoAccount = QtWidgets.QLabel(self.groupBox)
-        self.label_Static_YourAleoAccount.setObjectName("label_Static_YourAleoAccount")
-        self.verticalLayout.addWidget(self.label_Static_YourAleoAccount)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
-        self.verticalLayout.addItem(spacerItem)
-        self.accountSelectBox = QtWidgets.QComboBox(self.groupBox)
-        self.accountSelectBox.setObjectName("accountSelectBox")
-        self.verticalLayout.addWidget(self.accountSelectBox)
-        self.label_AccountName = QtWidgets.QLabel(self.groupBox)
-        self.label_AccountName.setObjectName("label_AccountName")
-        self.verticalLayout.addWidget(self.label_AccountName)
-        self.label_PublicKey = QtWidgets.QLabel(self.groupBox)
-        self.label_PublicKey.setObjectName("label_PublicKey")
-        self.verticalLayout.addWidget(self.label_PublicKey)
-        self.pushButton_newAccount = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton_newAccount.setObjectName("pushButton_newAccount")
-        self.verticalLayout.addWidget(self.pushButton_newAccount)
-        self.horizontalLayout_1.addWidget(self.groupBox)
-        self.label = QtWidgets.QLabel(Dialog)
-        self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap(":/assets/logo.png"))
-        self.label.setScaledContents(False)
-        self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label.setObjectName("label")
-        self.horizontalLayout_1.addWidget(self.label)
-        self.verticalLayout_2.addLayout(self.horizontalLayout_1)
-        self.groupBox_FileExplorer = QtWidgets.QGroupBox(Dialog)
-        self.groupBox_FileExplorer.setTitle("")
-        self.groupBox_FileExplorer.setObjectName("groupBox_FileExplorer")
-        self.gridLayout_3 = QtWidgets.QGridLayout(self.groupBox_FileExplorer)
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.label_FilesUnread = QtWidgets.QLabel(self.groupBox_FileExplorer)
-        self.label_FilesUnread.setObjectName("label_FilesUnread")
-        self.gridLayout_3.addWidget(self.label_FilesUnread, 0, 0, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(274, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_3.addItem(spacerItem1, 0, 1, 1, 1)
-        self.incomingFilesButton = QtWidgets.QPushButton(self.groupBox_FileExplorer)
-        self.incomingFilesButton.setObjectName("incomingFilesButton")
-        self.gridLayout_3.addWidget(self.incomingFilesButton, 0, 2, 1, 1)
-        self.verticalLayout_2.addWidget(self.groupBox_FileExplorer)
-        self.groupBox_OpenFile = QtWidgets.QGroupBox(Dialog)
-        self.groupBox_OpenFile.setTitle("")
-        self.groupBox_OpenFile.setObjectName("groupBox_OpenFile")
-        self.gridLayout = QtWidgets.QGridLayout(self.groupBox_OpenFile)
-        self.gridLayout.setObjectName("gridLayout")
-        self.label_4 = QtWidgets.QLabel(self.groupBox_OpenFile)
-        self.label_4.setObjectName("label_4")
-        self.gridLayout.addWidget(self.label_4, 0, 0, 1, 1)
-        self.pushButton_OpenFile = QtWidgets.QPushButton(self.groupBox_OpenFile)
-        self.pushButton_OpenFile.setObjectName("pushButton_OpenFile")
-        self.gridLayout.addWidget(self.pushButton_OpenFile, 2, 0, 1, 1)
-        self.lineEdit = QtWidgets.QLineEdit(self.groupBox_OpenFile)
-        self.lineEdit.setReadOnly(True)
-        self.lineEdit.setObjectName("lineEdit")
-        self.gridLayout.addWidget(self.lineEdit, 2, 1, 1, 1)
-        self.verticalLayout_2.addWidget(self.groupBox_OpenFile)
-        self.groupBox_Recipient = QtWidgets.QGroupBox(Dialog)
-        self.groupBox_Recipient.setTitle("")
-        self.groupBox_Recipient.setObjectName("groupBox_Recipient")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox_Recipient)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.label_3 = QtWidgets.QLabel(self.groupBox_Recipient)
-        self.label_3.setObjectName("label_3")
-        self.gridLayout_2.addWidget(self.label_3, 3, 0, 1, 1)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem2, 4, 1, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem3, 2, 1, 1, 1)
-        self.recipientSelectBox = QtWidgets.QComboBox(self.groupBox_Recipient)
-        self.recipientSelectBox.setObjectName("recipientSelectBox")
-        self.gridLayout_2.addWidget(self.recipientSelectBox, 2, 0, 1, 1)
-        self.lineEdit_newRecipient = QtWidgets.QLineEdit(self.groupBox_Recipient)
-        self.lineEdit_newRecipient.setObjectName("lineEdit_newRecipient")
-        self.gridLayout_2.addWidget(self.lineEdit_newRecipient, 4, 0, 1, 1)
-        self.label_5 = QtWidgets.QLabel(self.groupBox_Recipient)
-        self.label_5.setObjectName("label_5")
-        self.gridLayout_2.addWidget(self.label_5, 0, 0, 1, 1)
-        self.pushButton_newRecipient = QtWidgets.QPushButton(self.groupBox_Recipient)
-        self.pushButton_newRecipient.setObjectName("pushButton_newRecipient")
-        self.gridLayout_2.addWidget(self.pushButton_newRecipient, 4, 2, 1, 1)
-        self.verticalLayout_2.addWidget(self.groupBox_Recipient)
-        self.groupBox_EncryptionData = QtWidgets.QGroupBox(Dialog)
-        self.groupBox_EncryptionData.setObjectName("groupBox_EncryptionData")
-        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.groupBox_EncryptionData)
-        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
-        self.scrollArea = QtWidgets.QScrollArea(self.groupBox_EncryptionData)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
-        self.scrollArea.setObjectName("scrollArea")
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 446, 76))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
-        self.verticalLayout_3.setContentsMargins(-1, 0, -1, 0)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.logFieldLabel = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.logFieldLabel.sizePolicy().hasHeightForWidth())
-        self.logFieldLabel.setSizePolicy(sizePolicy)
-        self.logFieldLabel.setTextFormat(QtCore.Qt.TextFormat.PlainText)
-        self.logFieldLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
-        self.logFieldLabel.setWordWrap(True)
-        self.logFieldLabel.setObjectName("logFieldLabel")
-        self.verticalLayout_3.addWidget(self.logFieldLabel)
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.horizontalLayout_6.addWidget(self.scrollArea)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
-        self.horizontalLayout_6.addItem(spacerItem4)
-        self.verticalLayout_2.addWidget(self.groupBox_EncryptionData)
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.encryptButton = QtWidgets.QPushButton(Dialog)
-        self.encryptButton.setObjectName("encryptButton")
-        self.horizontalLayout_2.addWidget(self.encryptButton)
-        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem5)
-        self.label_2 = QtWidgets.QLabel(Dialog)
-        self.label_2.setMaximumSize(QtCore.QSize(50, 50))
-        self.label_2.setText("")
-        self.label_2.setPixmap(QtGui.QPixmap(":/assets/square-aleo.png"))
-        self.label_2.setScaledContents(True)
-        self.label_2.setObjectName("label_2")
-        self.horizontalLayout_2.addWidget(self.label_2)
-        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+class Ui_Dialog(QtWidgets.QDialog):
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        uic.loadUi("pyqt_zkdrop.ui", self)
 
-    def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "zkDrop | Aleo"))
-        self.label_Static_YourAleoAccount.setText(_translate("Dialog", "Your Aleo Account"))
-        self.label_AccountName.setText(_translate("Dialog", "Account Name: "))
-        self.label_PublicKey.setText(_translate("Dialog", "Public Key:"))
-        self.pushButton_newAccount.setText(_translate("Dialog", "Create new Aleo account"))
-        self.label_FilesUnread.setText(_translate("Dialog", "TextLabel"))
-        self.incomingFilesButton.setText(_translate("Dialog", "Received Files"))
-        self.label_4.setText(_translate("Dialog", "Choose file to encrypt"))
-        self.pushButton_OpenFile.setText(_translate("Dialog", "Open File"))
-        self.label_3.setText(_translate("Dialog", "or... add new recepient\'s Aleo address"))
-        self.label_5.setText(_translate("Dialog", "Choose file recipient"))
-        self.pushButton_newRecipient.setText(_translate("Dialog", "Add Address"))
-        self.groupBox_EncryptionData.setTitle(_translate("Dialog", "Log"))
-        self.logFieldLabel.setText(_translate("Dialog", "TextLabel"))
-        self.encryptButton.setText(_translate("Dialog", "Encrypt and Send"))
 
+# class Ui_Dialog(object):
+#     def setupUi(self, Dialog):
+#         Dialog.setObjectName("Dialog")
+#         Dialog.resize(532, 715)
+#         self.verticalLayout_2 = QtWidgets.QVBoxLayout(Dialog)
+#         self.verticalLayout_2.setObjectName("verticalLayout_2")
+#         self.horizontalLayout_1 = QtWidgets.QHBoxLayout()
+#         self.horizontalLayout_1.setObjectName("horizontalLayout_1")
+#         self.groupBox = QtWidgets.QGroupBox(Dialog)
+#         self.groupBox.setTitle("")
+#         self.groupBox.setObjectName("groupBox")
+#         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
+#         self.verticalLayout.setObjectName("verticalLayout")
+#         self.label_Static_YourAleoAccount = QtWidgets.QLabel(self.groupBox)
+#         self.label_Static_YourAleoAccount.setObjectName("label_Static_YourAleoAccount")
+#         self.verticalLayout.addWidget(self.label_Static_YourAleoAccount)
+#         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+#         self.verticalLayout.addItem(spacerItem)
+#         self.accountSelectBox = QtWidgets.QComboBox(self.groupBox)
+#         self.accountSelectBox.setObjectName("accountSelectBox")
+#         self.verticalLayout.addWidget(self.accountSelectBox)
+#         self.label_AccountName = QtWidgets.QLabel(self.groupBox)
+#         self.label_AccountName.setObjectName("label_AccountName")
+#         self.verticalLayout.addWidget(self.label_AccountName)
+#         self.label_PublicKey = QtWidgets.QLabel(self.groupBox)
+#         self.label_PublicKey.setObjectName("label_PublicKey")
+#         self.verticalLayout.addWidget(self.label_PublicKey)
+#         self.pushButton_newAccount = QtWidgets.QPushButton(self.groupBox)
+#         self.pushButton_newAccount.setObjectName("pushButton_newAccount")
+#         self.verticalLayout.addWidget(self.pushButton_newAccount)
+#         self.horizontalLayout_1.addWidget(self.groupBox)
+#         self.label = QtWidgets.QLabel(Dialog)
+#         self.label.setText("")
+#         self.label.setPixmap(QtGui.QPixmap(":/assets/logo.png"))
+#         self.label.setScaledContents(False)
+#         self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+#         self.label.setObjectName("label")
+#         self.horizontalLayout_1.addWidget(self.label)
+#         self.verticalLayout_2.addLayout(self.horizontalLayout_1)
+#         self.groupBox_FileExplorer = QtWidgets.QGroupBox(Dialog)
+#         self.groupBox_FileExplorer.setTitle("")
+#         self.groupBox_FileExplorer.setObjectName("groupBox_FileExplorer")
+#         self.gridLayout_3 = QtWidgets.QGridLayout(self.groupBox_FileExplorer)
+#         self.gridLayout_3.setObjectName("gridLayout_3")
+#         self.label_FilesUnread = QtWidgets.QLabel(self.groupBox_FileExplorer)
+#         self.label_FilesUnread.setObjectName("label_FilesUnread")
+#         self.gridLayout_3.addWidget(self.label_FilesUnread, 0, 0, 1, 1)
+#         spacerItem1 = QtWidgets.QSpacerItem(274, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+#         self.gridLayout_3.addItem(spacerItem1, 0, 1, 1, 1)
+#         self.incomingFilesButton = QtWidgets.QPushButton(self.groupBox_FileExplorer)
+#         self.incomingFilesButton.setObjectName("incomingFilesButton")
+#         self.gridLayout_3.addWidget(self.incomingFilesButton, 0, 2, 1, 1)
+#         self.verticalLayout_2.addWidget(self.groupBox_FileExplorer)
+#         self.groupBox_OpenFile = QtWidgets.QGroupBox(Dialog)
+#         self.groupBox_OpenFile.setTitle("")
+#         self.groupBox_OpenFile.setObjectName("groupBox_OpenFile")
+#         self.gridLayout = QtWidgets.QGridLayout(self.groupBox_OpenFile)
+#         self.gridLayout.setObjectName("gridLayout")
+#         self.label_4 = QtWidgets.QLabel(self.groupBox_OpenFile)
+#         self.label_4.setObjectName("label_4")
+#         self.gridLayout.addWidget(self.label_4, 0, 0, 1, 1)
+#         self.pushButton_OpenFile = QtWidgets.QPushButton(self.groupBox_OpenFile)
+#         self.pushButton_OpenFile.setObjectName("pushButton_OpenFile")
+#         self.gridLayout.addWidget(self.pushButton_OpenFile, 2, 0, 1, 1)
+#         self.lineEdit = QtWidgets.QLineEdit(self.groupBox_OpenFile)
+#         self.lineEdit.setReadOnly(True)
+#         self.lineEdit.setObjectName("lineEdit")
+#         self.gridLayout.addWidget(self.lineEdit, 2, 1, 1, 1)
+#         self.verticalLayout_2.addWidget(self.groupBox_OpenFile)
+#         self.groupBox_Recipient = QtWidgets.QGroupBox(Dialog)
+#         self.groupBox_Recipient.setTitle("")
+#         self.groupBox_Recipient.setObjectName("groupBox_Recipient")
+#         self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox_Recipient)
+#         self.gridLayout_2.setObjectName("gridLayout_2")
+#         self.label_3 = QtWidgets.QLabel(self.groupBox_Recipient)
+#         self.label_3.setObjectName("label_3")
+#         self.gridLayout_2.addWidget(self.label_3, 3, 0, 1, 1)
+#         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+#         self.gridLayout_2.addItem(spacerItem2, 4, 1, 1, 1)
+#         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+#         self.gridLayout_2.addItem(spacerItem3, 2, 1, 1, 1)
+#         self.recipientSelectBox = QtWidgets.QComboBox(self.groupBox_Recipient)
+#         self.recipientSelectBox.setObjectName("recipientSelectBox")
+#         self.gridLayout_2.addWidget(self.recipientSelectBox, 2, 0, 1, 1)
+#         self.lineEdit_newRecipient = QtWidgets.QLineEdit(self.groupBox_Recipient)
+#         self.lineEdit_newRecipient.setObjectName("lineEdit_newRecipient")
+#         self.gridLayout_2.addWidget(self.lineEdit_newRecipient, 4, 0, 1, 1)
+#         self.label_5 = QtWidgets.QLabel(self.groupBox_Recipient)
+#         self.label_5.setObjectName("label_5")
+#         self.gridLayout_2.addWidget(self.label_5, 0, 0, 1, 1)
+#         self.pushButton_newRecipient = QtWidgets.QPushButton(self.groupBox_Recipient)
+#         self.pushButton_newRecipient.setObjectName("pushButton_newRecipient")
+#         self.gridLayout_2.addWidget(self.pushButton_newRecipient, 4, 2, 1, 1)
+#         self.verticalLayout_2.addWidget(self.groupBox_Recipient)
+#         self.groupBox_EncryptionData = QtWidgets.QGroupBox(Dialog)
+#         self.groupBox_EncryptionData.setObjectName("groupBox_EncryptionData")
+#         self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.groupBox_EncryptionData)
+#         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+#         self.scrollArea = QtWidgets.QScrollArea(self.groupBox_EncryptionData)
+#         self.scrollArea.setWidgetResizable(True)
+#         self.scrollArea.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+#         self.scrollArea.setObjectName("scrollArea")
+#         self.scrollAreaWidgetContents = QtWidgets.QWidget()
+#         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 446, 76))
+#         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+#         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
+#         self.verticalLayout_3.setContentsMargins(-1, 0, -1, 0)
+#         self.verticalLayout_3.setObjectName("verticalLayout_3")
+#         self.logFieldLabel = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
+#         sizePolicy.setHorizontalStretch(0)
+#         sizePolicy.setVerticalStretch(0)
+#         sizePolicy.setHeightForWidth(self.logFieldLabel.sizePolicy().hasHeightForWidth())
+#         self.logFieldLabel.setSizePolicy(sizePolicy)
+#         self.logFieldLabel.setTextFormat(QtCore.Qt.TextFormat.PlainText)
+#         self.logFieldLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+#         self.logFieldLabel.setWordWrap(True)
+#         self.logFieldLabel.setObjectName("logFieldLabel")
+#         self.verticalLayout_3.addWidget(self.logFieldLabel)
+#         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+#         self.horizontalLayout_6.addWidget(self.scrollArea)
+#         spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+#         self.horizontalLayout_6.addItem(spacerItem4)
+#         self.verticalLayout_2.addWidget(self.groupBox_EncryptionData)
+#         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+#         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+#         self.encryptButton = QtWidgets.QPushButton(Dialog)
+#         self.encryptButton.setObjectName("encryptButton")
+#         self.horizontalLayout_2.addWidget(self.encryptButton)
+#         spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+#         self.horizontalLayout_2.addItem(spacerItem5)
+#         self.label_2 = QtWidgets.QLabel(Dialog)
+#         self.label_2.setMaximumSize(QtCore.QSize(50, 50))
+#         self.label_2.setText("")
+#         self.label_2.setPixmap(QtGui.QPixmap(":/assets/square-aleo.png"))
+#         self.label_2.setScaledContents(True)
+#         self.label_2.setObjectName("label_2")
+#         self.horizontalLayout_2.addWidget(self.label_2)
+#         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+
+#         self.retranslateUi(Dialog)
+#         QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+#     def retranslateUi(self, Dialog):
+#         _translate = QtCore.QCoreApplication.translate
+#         Dialog.setWindowTitle(_translate("Dialog", "zkDrop | Aleo"))
+#         self.label_Static_YourAleoAccount.setText(_translate("Dialog", "Your Aleo Account"))
+#         self.label_AccountName.setText(_translate("Dialog", "Account Name: "))
+#         self.label_PublicKey.setText(_translate("Dialog", "Public Key:"))
+#         self.pushButton_newAccount.setText(_translate("Dialog", "Create new Aleo account"))
+#         self.label_FilesUnread.setText(_translate("Dialog", "TextLabel"))
+#         self.incomingFilesButton.setText(_translate("Dialog", "Received Files"))
+#         self.label_4.setText(_translate("Dialog", "Choose file to encrypt"))
+#         self.pushButton_OpenFile.setText(_translate("Dialog", "Open File"))
+#         self.label_3.setText(_translate("Dialog", "or... add new recepient\'s Aleo address"))
+#         self.label_5.setText(_translate("Dialog", "Choose file recipient"))
+#         self.pushButton_newRecipient.setText(_translate("Dialog", "Add Address"))
+#         self.groupBox_EncryptionData.setTitle(_translate("Dialog", "Log"))
+#         self.logFieldLabel.setText(_translate("Dialog", "TextLabel"))
+#         self.encryptButton.setText(_translate("Dialog", "Encrypt and Send"))
 
     def addAccountsMenu(self, Dialog):
 
-        self.accountSelectBox.clear()
+        # self.accountSelectBox.clear()
 
         directory = 'aleo_keys'
 
@@ -369,10 +465,12 @@ class Ui_Dialog(object):
                 file = open(f)
                 data = json.load(file)
 
-            # checking for files with empty Private Key field
+            # checking for files with empty Private Key field and Duplicated records
 
                 if data['AleoPrivateKey'] != "":
-                    self.accountSelectBox.addItem(data['AccountName'])
+                    item_available = self.accountSelectBox.findText(data['AccountName'])
+                    if item_available == -1:
+                        self.accountSelectBox.addItem(data['AccountName'])
 
         # check if no accounts created        
 
@@ -386,7 +484,6 @@ class Ui_Dialog(object):
         self.active_account_changed(self.accountSelectBox.currentText())
 
         self.accountSelectBox.currentTextChanged.connect(self.active_account_changed)
-
 
     def addRecipientsMenu(self, Dialog):
 
@@ -532,6 +629,9 @@ class Ui_Dialog(object):
         dlg = NewAccountDialog()
         dlg.setWindowTitle("New Account")
         dlg.exec()
+
+        self.addRecipientsMenu(self)
+        self.addAccountsMenu(self)
         
     def add_new_recipient(self):
 
@@ -555,9 +655,7 @@ class Ui_Dialog(object):
                 outfile.write(json.dumps(new_account))
 
             self.addRecipientsMenu(self)
-
             
-
 # File encryption
 
 def encrypt_file():                                                                                     
@@ -610,13 +708,30 @@ def encrypt_file():
 
     # ipfs upload
 
-    ipfs_client = ipfshttpclient.connect()
+    # ipfs_client = ipfshttpclient.connect()
 
-    new_file = ipfs_client.add("encrypted_files_tmp/" + file_name + '.encrypted')
+    # new_file = ipfs_client.add("encrypted_files_tmp/" + file_name + '.encrypted')
 
-    ui.ui_logging("IPFS data:\n" + str(new_file))
+    with ZipFile("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', 'w') as myzip:
+        myzip.write("encrypted_files_tmp/" + file_name + '.encrypted')
+        myzip.write("encrypted_files_tmp/capsule_{}".format(data_md5_hash))
+        myzip.write("encrypted_files_tmp/kfrags_{}".format(data_md5_hash))
+        myzip.write("encrypted_files_tmp/ciphertext_{}".format(data_md5_hash))
+
+
+    ipfs_file = open("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', "rb")
+
+    ipfs_url = "https://api.zkdrop.xyz/api/ipfs_upload"
+
+    ipfs_response = requests.post(ipfs_url, files = {"file": ipfs_file})
+
+    os.remove("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip') 
+
+    print(ipfs_response)
+
+    ui.ui_logging("IPFS data:\n" + str(ipfs_response.json()))
     
-    URL = "https://api.zkdrop.xyz/api/publish/" + sender_address + "/" + recipient_address + "/" + new_file["Hash"]
+    URL = "https://api.zkdrop.xyz/api/publish/" + sender_address + "/" + recipient_address + "/" + ipfs_response.json()["Hash"]
 
     # sending get request and saving the response as response object
     r = requests.get(url = URL)
@@ -633,8 +748,6 @@ def sqs_listener():
 
         aleo_address = load_aleo_address(ui.label_AccountName.text().replace('Account Name: ',''))
 
-        print(aleo_address)
-
         ui.ui_logging("checking api for address: " + aleo_address )
 
         URL = "https://api.zkdrop.xyz/api/receive/" + aleo_address
@@ -644,17 +757,13 @@ def sqs_listener():
 
         data = api_response.json()
 
-        print(data)
-
         if data[0]["ipfs_hash"] == "":
-            print("nothing received")
+            ui.ui_logging("nothing received")
 
         else:
 
             for data_item in data:
                 ui.ui_logging("received a file: " + data_item["ipfs_hash"])
-
-                print(data_item["ipfs_hash"])
 
                 with sqlite_db:
 
@@ -667,8 +776,8 @@ def sqs_listener():
                     # if not, then we add it to local database
                     
                     if len(sql_select.fetchall()) == 0:
-                        print("File is not exists, adding to local database")            
-                        sql_insert = "INSERT INTO ZKDROP_FILES (id, aleo_address, file_ipfs, status ) values(%d, \"%s\", \"%s\", \"%s\")" % (0, data_item["recipient_address"], data_item["ipfs_hash"], "unread")
+                        ui.ui_logging("File is not exists, adding to local database")            
+                        sql_insert = "INSERT INTO ZKDROP_FILES (id, sender_address, aleo_address, file_ipfs, status ) values(%d, \"%s\", \"%s\", \"%s\", \"%s\")" % (0, data_item["sender_address"], data_item["recipient_address"], data_item["ipfs_hash"], "unread")
                         sqlite_db.execute(sql_insert)
 
                         query = "SELECT * FROM ZKDROP_FILES WHERE aleo_address == \"%s\" AND status == \"unread\"" % (aleo_address)
@@ -679,9 +788,9 @@ def sqs_listener():
                     # if yes, we skip it
 
                     else:
-                        print("File is already added to local database")
+                        ui.ui_logging("File is already added to local database")
 
-        sleep(30)
+        sleep(15)
 
 
 def init_app():
@@ -698,7 +807,9 @@ def init_app():
                     "id"	INTEGER,
                     "aleo_address"	TEXT,
                     "file_ipfs"	TEXT,
-                    "status"	TEXT
+                    "status"	TEXT,
+	                "sender_address"	TEXT,
+	                "file_name"	TEXT
                 )
                 ''')
                             
@@ -721,7 +832,6 @@ def init_app():
     if not folder_exists:
         os.mkdir('received_files')    
 
-
 if __name__ == "__main__":
     
     import sys
@@ -731,7 +841,8 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
     ui = Ui_Dialog()
-    ui.setupUi(Dialog)
+    #ui.setupUi(Dialog)
+    ui.show()
     ui.setLogos(Dialog)
     ui.defineActions(Dialog)
     ui.addAccountsMenu(Dialog)
@@ -741,5 +852,5 @@ if __name__ == "__main__":
     thread.daemon = True
     thread.start()
 
-    Dialog.show()
+    # Dialog.show()
     sys.exit(app.exec())

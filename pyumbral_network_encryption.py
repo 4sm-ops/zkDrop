@@ -8,7 +8,8 @@ import time
 import hashlib
 import random
 
-from umbral import KeyFrag, PublicKey, SecretKey, Signer, encrypt, decrypt_original, generate_kfrags, reencrypt, CapsuleFrag, decrypt_reencrypted, Capsule
+from umbral import PublicKey, SecretKey, Signer, encrypt, decrypt_original, generate_kfrags, Capsule # KeyFrag, reencrypt, CapsuleFrag, decrypt_reencrypted # unused import
+
 
 import sys
 import json
