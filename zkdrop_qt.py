@@ -2,18 +2,21 @@ from PyQt6 import QtCore, QtGui, QtWidgets, uic
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery
 
 import os
-import io
+
 import shutil
 import sys
 import json
 import requests
 import sqlite3
-# import ipfshttpclient
+
 import threading
 import pathlib
 import filetype
 from zipfile import ZipFile
 from time import sleep
+
+from mimetypes import MimeTypes
+import urllib 
 
 from binascii import hexlify, unhexlify
 import hashlib
@@ -21,7 +24,13 @@ from cryptography.fernet import Fernet
 
 from umbral import PublicKey
 
+# unused libs
+
+# import io
+# import ipfshttpclient
+
 # QR Libs
+
 import qrcode
 from PIL import Image
 from PIL.ImageQt import ImageQt
@@ -33,40 +42,235 @@ from PIL.ImageQt import ImageQt
 from lib.keys import load_aleo_keys, restore_keys_from_aleo, pyumbral_encrypt_secret, load_aleo_address, pyumbral_decrypt_secret
 import aleo_python
 
+# KYC dialog
+
+class KYCDialog(QtWidgets.QDialog):
+    def __init__(self, account_name):
+        super().__init__()
+
+        self.account_name = account_name
+
+        uic.loadUi("pyqt_zkdrop_kyc.ui", self)
+        self.pushButton_OpenDocument.clicked.connect(self.getFile)
+        self.pushButton_kycUpload.clicked.connect(self.uploadFile)
+
+        self.pushButton_Cancel.clicked.connect(self.closeDialog)
+
+        self.pushButton_SaveKYC.clicked.connect(self.saveKYC)
+
+
+    def getFile(self):
+
+        fname = QtWidgets.QFileDialog.getOpenFileName(None, 'Open File')
+
+        self.lineEdit_fileToUpload.setText(fname[0])
+
+        # if filetype.is_image(fname[0]):
+        #     print(f"{fname[0]} is a valid image...")
+
+    
+    def uploadFile(self):
+
+        kyc_file = self.lineEdit_fileToUpload.text()
+
+        if  not os.path.isfile(kyc_file):
+
+            dlg = QtWidgets.QMessageBox(ui)
+            dlg.setWindowTitle("Aleo Account creation confirmation")
+            dlg.setText("File is not exist")
+            button = dlg.exec()
+
+            return
+
+        # check file size
+
+        file_size = os.path.getsize(kyc_file)/1024
+        print(str(file_size) + " KB")   
+
+        if file_size > 512:
+
+            dlg = QtWidgets.QMessageBox(ui)
+            dlg.setWindowTitle("Aleo Account creation confirmation")
+            dlg.setText("File is too big. Consider upload less than 512 KB")
+            button = dlg.exec()
+
+            return
+
+        if filetype.is_image(kyc_file):
+            print(f"{kyc_file} is a valid image...")
+
+            kyc_url = "https://api.zkdrop.xyz/api/kyc"
+
+            mime = MimeTypes()
+            url = urllib.request.pathname2url(kyc_file)
+            mime_type = mime.guess_type(url)
+
+
+            payload={}
+            files=[
+            ('photo',(pathlib.Path(kyc_file).name,open(kyc_file,'rb'),mime_type[0]))
+            ]
+            headers = {}
+
+            kyc_response = requests.request("POST", kyc_url, headers=headers, data=payload, files=files)
+
+            self.displayKYCData(kyc_response.json()["TextDetections"])
+
+    def displayKYCData(self, kyc_json):
+        # print(json.dumps(kyc_json))
+        
+        tmp_json = json.loads("{}")
+        for kyc_text in kyc_json:
+            tmp_json["DetectedText"] = kyc_text.pop("DetectedText")
+            tmp_json["Type"] = kyc_text.pop("Type")
+            self.textBrowser_parsingResults.append(json.dumps(tmp_json))
+
+    def closeDialog(self):
+        self.close()
+
+    def saveKYC(self):
+
+        kyc_file = self.lineEdit_fileToUpload.text()
+
+        if  not os.path.isfile(kyc_file):
+
+            dlg = QtWidgets.QMessageBox(ui)
+            dlg.setWindowTitle("Aleo Account creation confirmation")
+            dlg.setText("File is not exist")
+            button = dlg.exec()
+
+            return
+
+        # check file size
+
+        file_size = os.path.getsize(kyc_file)/1024
+        print(str(file_size) + " KB")   
+
+        if file_size > 512:
+
+            dlg = QtWidgets.QMessageBox(ui)
+            dlg.setWindowTitle("Aleo Account creation confirmation")
+            dlg.setText("File is too big. Consider upload less than 512 KB")
+            button = dlg.exec()
+
+            return
+                                                                            
+        sender_profile_name = self.account_name
+        aleo_private_key = load_aleo_keys(sender_profile_name)
+        sender_secret_key = restore_keys_from_aleo(aleo_private_key)
+
+        # get recipient data
+
+        recipient_profile_name = self.account_name
+        sender_address = load_aleo_address(sender_profile_name)
+        recipient_address = load_aleo_address(recipient_profile_name)
+
+        URL = "https://api.zkdrop.xyz/api/account/" + recipient_address
+
+        try:
+            r = requests.get(url = URL,timeout=5)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt)
+        except requests.exceptions.RequestException as err:
+            print ("OOps: Something Else",err)
+
+        recipient_nucypher_address = r.json()[0]["nucypher_address"]
+
+        recipient_public_key = PublicKey.from_bytes(unhexlify(recipient_nucypher_address))
+
+        # file encryption key
+        key = Fernet.generate_key()
+
+        # file itself
+        # Open the file to encrypt
+        with open(kyc_file, 'rb') as f:
+            data = f.read()
+
+        #file md5 sum (32 bytes)
+
+        data_md5_hash = hashlib.md5(data).hexdigest()
+
+        ciphertext = pyumbral_encrypt_secret(sender_secret_key, recipient_public_key, key, data_md5_hash)
+
+        # encrypt file
+        
+        fernet = Fernet(key)
+        encrypted = fernet.encrypt(data)
+
+        # envelop has 32 bytes md5 sum + ciphertext from pyumbral + encryted data
+
+        head, file_name = os.path.split(kyc_file)
+
+        # Write the envelope file
+        with open("encrypted_files_tmp/" + file_name + '.encrypted', 'wb') as f:
+            f.write(data_md5_hash.encode())
+            f.write(ciphertext)
+            f.write(encrypted)
+
+        # ipfs upload
+
+        # ipfs_client = ipfshttpclient.connect()
+
+        # new_file = ipfs_client.add("encrypted_files_tmp/" + file_name + '.encrypted')
+
+        with ZipFile("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', 'w') as myzip:
+            myzip.write("encrypted_files_tmp/" + file_name + '.encrypted')
+            myzip.write("encrypted_files_tmp/capsule_{}".format(data_md5_hash))
+            myzip.write("encrypted_files_tmp/kfrags_{}".format(data_md5_hash))
+            myzip.write("encrypted_files_tmp/ciphertext_{}".format(data_md5_hash))
+
+
+        ipfs_file = open("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', "rb")
+
+        ipfs_url = "https://api.zkdrop.xyz/api/ipfs_upload"
+
+        ipfs_response = requests.post(ipfs_url, files = {"file": ipfs_file})
+
+        os.remove("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip') 
+
+        print(ipfs_response)
+        
+        try:
+            signature = aleo_python.sign_message(aleo_private_key, ipfs_response.json()["Hash"])
+            # print(signature)
+            # print(json.loads(signature)["Signature"])
+
+        except ValueError as err_message:
+            ui.ui_logging(err_message)
+        
+        URL = "https://api.zkdrop.xyz/api/publish/" + sender_address + "/" + recipient_address + "/" + ipfs_response.json()["Hash"] + "/" + json.loads(signature)["Signature"]
+
+
+        # sending get request and saving the response as response object
+        try:
+            r = requests.get(url = URL,timeout=5)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            print ("Http Error:",errh)
+        except requests.exceptions.ConnectionError as errc:
+            print ("Error Connecting:",errc)
+        except requests.exceptions.Timeout as errt:
+            print ("Timeout Error:",errt)
+        except requests.exceptions.RequestException as err:
+            print ("OOps: Something Else",err)
+
+
 # New accounts dialog
 
 class NewAccountDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
 
+        uic.loadUi("pyqt_zkdrop_new_account.ui", self)
+
         self.setWindowTitle("zkDrop | Create New Account")
 
-        self.layout = QtWidgets.QVBoxLayout()
-        message = QtWidgets.QLabel("Create new account")
-
-        message1 = QtWidgets.QLabel("Account name")
-        self.newAccountName = QtWidgets.QLineEdit()
-
-        newAccountButton = QtWidgets.QPushButton()
-        newAccountButton.setObjectName("encryptButton")
-        newAccountButton.setText("Create new account")
-
-        self.resize(500, 300)
-        # Set up the model
-
-        self.layout.addWidget(message)
-        self.layout.addStretch()
-
-        self.layout.addWidget(message1)
-        self.layout.addWidget(self.newAccountName)
-
-        self.layout.addStretch()
-
-        self.layout.addWidget(newAccountButton)
-
-        self.setLayout(self.layout)
-
-        newAccountButton.clicked.connect(self.createNewAleoKeys)
+        self.newAccountButton.clicked.connect(self.createNewAleoKeys)
 
     def createNewAleoKeys(self):
 
@@ -76,13 +280,13 @@ class NewAccountDialog(QtWidgets.QDialog):
 
         # check existing accounts
 
-        file_exists = os.path.exists('aleo_keys/aleo_'+self.newAccountName.text()+'_key.json')
+        file_exists = os.path.exists('aleo_keys/aleo_' + new_keys["AccountName"] + '_key.json')
 
-        if self.newAccountName.text() == "":
+        if new_keys["AccountName"] == "":
 
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Aleo Account creation confirmation")
-            dlg.setText("Empty account name")
+            dlg.setText("Empty Aleo.ID")
             button = dlg.exec()
 
         else:
@@ -91,11 +295,11 @@ class NewAccountDialog(QtWidgets.QDialog):
 
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Aleo Account creation confirmation")
-                dlg.setText("Account name is exists. Please choose different name")
+                dlg.setText("Aleo.ID is exists. Please choose different name")
                 button = dlg.exec()
 
             else:
-                with open('aleo_keys/aleo_'+self.newAccountName.text()+'_key.json', 'w') as outfile:
+                with open('aleo_keys/aleo_'+new_keys["AccountName"]+'_key.json', 'w') as outfile:
                     outfile.write(json.dumps(new_keys))
 
                 dlg = QtWidgets.QMessageBox(self)
@@ -111,7 +315,7 @@ class NewAccountDialog(QtWidgets.QDialog):
 
                 # print(str(hexlify(bytes(nucypher_public_key)), "utf-8")) 
 
-                URL = "https://api.zkdrop.xyz/api/createaccount/" + new_keys["AleoAddress"] + "/" + self.newAccountName.text() + "/" + str(hexlify(bytes(nucypher_public_key)), "utf-8")
+                URL = "https://api.zkdrop.xyz/api/createaccount/" + new_keys["AleoAddress"] + "/" + new_keys["AccountName"] + "/" + str(hexlify(bytes(nucypher_public_key)), "utf-8")
 
                 # sending get request and saving the response as response object
 
@@ -133,20 +337,26 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
     def __init__(self, account_name):
         super().__init__()
 
+        uic.loadUi("pyqt_zkdrop_received_files.ui", self)
+
+
         self.setWindowTitle("zkDrop | File Browser")
 
-        self.layout = QtWidgets.QVBoxLayout()
-        message = QtWidgets.QLabel("Received files")
+        # self.layout = QtWidgets.QVBoxLayout()
+        # message = QtWidgets.QLabel("Received files")
 
         self.resize(1000, 300)
         # Set up the model
 
         # Set up the view
-        self.tableFiles = QtWidgets.QTableWidget()
-        self.tableFiles.setColumnCount(3)
-        self.tableFiles.setHorizontalHeaderLabels(["Sender Address", "IPFS Hash", "Status"])
+        # self.tableFiles = QtWidgets.QTableWidget()
+        self.tableFiles.setColumnCount(4)
+        self.tableFiles.setHorizontalHeaderLabels(["Sender Address", "IPFS Hash", "Status", "Signature"])
 
         self.tableFiles.doubleClicked.connect(self.selectFileToDecrypt)
+
+        self.pushButton_Close.clicked.connect(self.closeDialog)
+
 
         db_con = QSqlDatabase.addDatabase("QSQLITE")
         db_con.setDatabaseName("zkdrop_database.db")
@@ -154,7 +364,7 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         aleo_address = load_aleo_address(account_name)
 
         db_con.open()
-        query_text = "SELECT sender_address, aleo_address, file_ipfs, status FROM ZKDROP_FILES where aleo_address = \"{}\"".format(aleo_address)
+        query_text = "SELECT sender_address, aleo_address, file_ipfs, status, signature FROM ZKDROP_FILES where aleo_address = \"{}\"".format(aleo_address)
 
         query = QSqlQuery(query_text)
 
@@ -164,25 +374,43 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
             self.tableFiles.setItem(rows, 0, QtWidgets.QTableWidgetItem(query.value(0)))
             self.tableFiles.setItem(rows, 1, QtWidgets.QTableWidgetItem(query.value(2)))
             self.tableFiles.setItem(rows, 2, QtWidgets.QTableWidgetItem(query.value(3)))
+            self.tableFiles.setItem(rows, 3, QtWidgets.QTableWidgetItem(query.value(4)))
 
         # making not editable
         self.tableFiles.setEditTriggers(QtWidgets.QTableWidget.EditTrigger.NoEditTriggers)
 
         self.tableFiles.resizeColumnsToContents()
 
-        self.image_lbl = QtWidgets.QLabel()
+        # self.image_lbl = QtWidgets.QLabel()
 
-        self.layout.addWidget(message)
-        self.layout.addWidget(self.tableFiles)
-        self.layout.addStretch()
-        self.layout.addWidget(self.image_lbl)
-        self.setLayout(self.layout)
+        # self.layout.addWidget(message)
+        # self.layout.addWidget(self.tableFiles)
+        # self.layout.addStretch()
+        # self.layout.addWidget(self.image_lbl)
+        # self.setLayout(self.layout)
 
         db_con.close()
 
-        
+    def closeDialog(self):
+        self.close()
 
     def selectFileToDecrypt(self):
+
+
+        # cleanup folders
+
+        try:
+            os.remove("received_files/received_tmp.zip")
+        except OSError as e:
+            # If it fails, inform the user.
+            print("Error: %s - %s." % (e.filename, e.strerror))
+
+        try:
+            shutil.rmtree("received_files/encrypted_files_tmp/")
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+
+
 
         # get selected  item row and column
         for idx in self.tableFiles.selectionModel().selectedIndexes():
@@ -192,6 +420,9 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
 
         ipfs_hash = self.tableFiles.item(row_number,1).text()
         recipient_address = self.tableFiles.item(row_number,0).text()
+        signature = self.tableFiles.item(row_number,3).text()
+
+
 
         # clear pixmap
         
@@ -244,11 +475,15 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         # Get Recipient Profile name and keys
 
         # python 3.9 version 
-        # recipient_profile_name = ui.label_AccountName.text().removeprefix('Account Name: ')
+        # recipient_profile_name = ui.label_AccountName.text().removeprefix('Aleo.ID: ')
 
         # python 3.7 version
 
-        recipient_profile_name = ui.label_AccountName.text().replace('Account Name: ','')
+
+
+        recipient_profile_name = ui.label_AccountName.text().replace('Aleo.ID: ','')
+
+        print(recipient_profile_name)
         
         aleo_private_key = load_aleo_keys(recipient_profile_name)
         recipient_secret_key = restore_keys_from_aleo(aleo_private_key)
@@ -256,7 +491,6 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         # Get Sender Profile name and keys
 
         URL = "https://api.zkdrop.xyz/api/account/" + recipient_address
-        
 
         # sending get request and saving the response as response object
 
@@ -274,7 +508,7 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
 
         sender_nucypher_address = r.json()[0]["nucypher_address"]
 
-        # print(sender_nucypher_address)
+        print(sender_nucypher_address)
 
         sender_public_key = PublicKey.from_bytes(unhexlify(sender_nucypher_address))
 
@@ -298,6 +532,18 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
         with open("received_files/"+encrypted_file_path.stem, 'wb') as f:
             f.write(decrypted_data)
 
+        # verify signature
+
+        try:
+            verify_signature = aleo_python.verify_message(recipient_address, ipfs_hash, signature)
+            print(verify_signature)
+            self.label_signature.setText("Signature status: " + verify_signature)
+
+        except ValueError as err_message:
+            print(err_message.args[0])
+            self.label_signature.setText("Signature status: " + err_message.args[0])
+
+
         # if file is image, then show it 
 
         filename = "received_files/"+encrypted_file_path.stem
@@ -318,7 +564,6 @@ class ReceivedFilesDialog(QtWidgets.QDialog):
             shutil.rmtree("received_files/encrypted_files_tmp/")
         except OSError as e:
             print("Error: %s - %s." % (e.filename, e.strerror))
-        
 
 # Main UI dialog
 
@@ -392,6 +637,7 @@ class Ui_Dialog(QtWidgets.QDialog):
         self.pushButton_newAccount.clicked.connect(self.create_new_account)
 
         self.pushButton_newRecipient.clicked.connect(self.add_new_recipient)
+        self.pushButton_uploadDocument.clicked.connect(self.start_kyc)
 
     def active_account_changed(self, s):
 
@@ -403,7 +649,7 @@ class Ui_Dialog(QtWidgets.QDialog):
 
         aleo_address = load_aleo_address(sender_profile_name)
 
-        self.label_AccountName.setText("Account Name: " + sender_profile_name)
+        self.label_AccountName.setText("Aleo.ID: " + sender_profile_name)
         self.label_PublicKey.setText("Account Public Key: " + str(sender_public_key))
 
         self.generate_qr(aleo_address)
@@ -445,7 +691,7 @@ class Ui_Dialog(QtWidgets.QDialog):
         )
 
         # taking url or text
-        url = 'https://www.zkdrop.xyz/api/account/' + s
+        url = 'https://api.zkdrop.xyz/api/account/' + s
 
         # adding URL or text to QRcode
         QRcode.add_data(url)
@@ -501,6 +747,12 @@ class Ui_Dialog(QtWidgets.QDialog):
         dlg.setWindowTitle("Received files")
         dlg.exec()
 
+    def start_kyc(self):
+        
+        dlg = KYCDialog(self.accountSelectBox.currentText())
+        dlg.setWindowTitle("zkDrop | KYC")
+        dlg.exec()
+
     def create_new_account(self):
         
         dlg = NewAccountDialog()
@@ -512,13 +764,15 @@ class Ui_Dialog(QtWidgets.QDialog):
         
     def add_new_recipient(self):
 
-        if len(self.lineEdit_newRecipient.text()) != 63:
+        new_recipient_aleo_address = self.lineEdit_newRecipient.text()
+
+        if len(new_recipient_aleo_address) != 63:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Aleo Account creation confirmation")
             dlg.setText("Incorrect Aleo Address")
             button = dlg.exec()
         else:
-            URL = "https://api.zkdrop.xyz/api/account/" + self.lineEdit_newRecipient.text()
+            URL = "https://api.zkdrop.xyz/api/account/" + new_recipient_aleo_address
 
             # sending get request and saving the response as response object
 
@@ -548,9 +802,24 @@ class Ui_Dialog(QtWidgets.QDialog):
             
 # File encryption
 
-def encrypt_file():      
+def encrypt_file():
+
+    file_to_encrypt = ui.lineEdit.text()
+
+    # check file availability
     
-    file_size = os.path.getsize(ui.lineEdit.text())/1024
+    if  not os.path.isfile(file_to_encrypt):
+
+        dlg = QtWidgets.QMessageBox(ui)
+        dlg.setWindowTitle("Aleo Account creation confirmation")
+        dlg.setText("File is not exist")
+        button = dlg.exec()
+
+        return
+
+    # check file size
+
+    file_size = os.path.getsize(file_to_encrypt)/1024
     print(str(file_size) + " KB")   
 
     if file_size > 512:
@@ -560,109 +829,119 @@ def encrypt_file():
         dlg.setText("File is too big. Consider upload less than 512 KB")
         button = dlg.exec()
 
-    else: 
-                                                                           
-        sender_profile_name = ui.accountSelectBox.currentText()
-        aleo_private_key = load_aleo_keys(sender_profile_name)
-        sender_secret_key = restore_keys_from_aleo(aleo_private_key)
-        sender_public_key = sender_secret_key.public_key()
+        return
 
-        # get recipient data
+    # continue if OK
+                                                                    
+    sender_profile_name = ui.accountSelectBox.currentText()
+    aleo_private_key = load_aleo_keys(sender_profile_name)
+    sender_secret_key = restore_keys_from_aleo(aleo_private_key)
+    sender_public_key = sender_secret_key.public_key()
 
-        recipient_profile_name = ui.recipientSelectBox.currentText()
-        sender_address = load_aleo_address(sender_profile_name)
-        recipient_address = load_aleo_address(recipient_profile_name)
+    # get recipient data
 
-        URL = "https://api.zkdrop.xyz/api/account/" + recipient_address
+    recipient_profile_name = ui.recipientSelectBox.currentText()
+    sender_address = load_aleo_address(sender_profile_name)
+    recipient_address = load_aleo_address(recipient_profile_name)
 
-        try:
-            r = requests.get(url = URL,timeout=5)
-            r.raise_for_status()
-        except requests.exceptions.HTTPError as errh:
-            print ("Http Error:",errh)
-        except requests.exceptions.ConnectionError as errc:
-            print ("Error Connecting:",errc)
-        except requests.exceptions.Timeout as errt:
-            print ("Timeout Error:",errt)
-        except requests.exceptions.RequestException as err:
-            print ("OOps: Something Else",err)
+    URL = "https://api.zkdrop.xyz/api/account/" + recipient_address
 
-        recipient_nucypher_address = r.json()[0]["nucypher_address"]
+    try:
+        r = requests.get(url = URL,timeout=5)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        print ("Http Error:",errh)
+    except requests.exceptions.ConnectionError as errc:
+        print ("Error Connecting:",errc)
+    except requests.exceptions.Timeout as errt:
+        print ("Timeout Error:",errt)
+    except requests.exceptions.RequestException as err:
+        print ("OOps: Something Else",err)
 
-        recipient_public_key = PublicKey.from_bytes(unhexlify(recipient_nucypher_address))
+    recipient_nucypher_address = r.json()[0]["nucypher_address"]
 
-        # file encryption key
-        key = Fernet.generate_key()
+    recipient_public_key = PublicKey.from_bytes(unhexlify(recipient_nucypher_address))
 
-        # file itself
-        # Open the file to encrypt
-        with open(ui.lineEdit.text(), 'rb') as f:
-            data = f.read()
+    # file encryption key
+    key = Fernet.generate_key()
 
-        #file md5 sum (32 bytes)
+    # file itself
+    # Open the file to encrypt
+    with open(file_to_encrypt, 'rb') as f:
+        data = f.read()
 
-        data_md5_hash = hashlib.md5(data).hexdigest()
+    #file md5 sum (32 bytes)
 
-        ui.ui_logging("File to be encrypted and sent to IPFS:\n" + ui.lineEdit.text())
+    data_md5_hash = hashlib.md5(data).hexdigest()
 
-        ciphertext = pyumbral_encrypt_secret(sender_secret_key, recipient_public_key, key, data_md5_hash)
+    ui.ui_logging("File to be encrypted and sent to IPFS:\n" + file_to_encrypt)
 
-        # encrypt file
-        
-        fernet = Fernet(key)
-        encrypted = fernet.encrypt(data)
+    ciphertext = pyumbral_encrypt_secret(sender_secret_key, recipient_public_key, key, data_md5_hash)
 
-        # envelop has 32 bytes md5 sum + ciphertext from pyumbral + encryted data
+    # encrypt file
+    
+    fernet = Fernet(key)
+    encrypted = fernet.encrypt(data)
 
-        head, file_name = os.path.split(ui.lineEdit.text())
+    # envelop has 32 bytes md5 sum + ciphertext from pyumbral + encryted data
 
-        # Write the envelope file
-        with open("encrypted_files_tmp/" + file_name + '.encrypted', 'wb') as f:
-            f.write(data_md5_hash.encode())
-            f.write(ciphertext)
-            f.write(encrypted)
+    head, file_name = os.path.split(file_to_encrypt)
 
-        ui.ui_logging("File is encrypted and stored with \n" + ui.lineEdit.text()+'.encrypted' + " filename")
+    # Write the envelope file
+    with open("encrypted_files_tmp/" + file_name + '.encrypted', 'wb') as f:
+        f.write(data_md5_hash.encode())
+        f.write(ciphertext)
+        f.write(encrypted)
 
-        # ipfs upload
+    ui.ui_logging("File is encrypted and stored with \n" + file_to_encrypt + '.encrypted' + " filename")
 
-        # ipfs_client = ipfshttpclient.connect()
+    # ipfs upload
 
-        # new_file = ipfs_client.add("encrypted_files_tmp/" + file_name + '.encrypted')
+    # ipfs_client = ipfshttpclient.connect()
 
-        with ZipFile("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', 'w') as myzip:
-            myzip.write("encrypted_files_tmp/" + file_name + '.encrypted')
-            myzip.write("encrypted_files_tmp/capsule_{}".format(data_md5_hash))
-            myzip.write("encrypted_files_tmp/kfrags_{}".format(data_md5_hash))
-            myzip.write("encrypted_files_tmp/ciphertext_{}".format(data_md5_hash))
+    # new_file = ipfs_client.add("encrypted_files_tmp/" + file_name + '.encrypted')
+
+    with ZipFile("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', 'w') as myzip:
+        myzip.write("encrypted_files_tmp/" + file_name + '.encrypted')
+        myzip.write("encrypted_files_tmp/capsule_{}".format(data_md5_hash))
+        myzip.write("encrypted_files_tmp/kfrags_{}".format(data_md5_hash))
+        myzip.write("encrypted_files_tmp/ciphertext_{}".format(data_md5_hash))
 
 
-        ipfs_file = open("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', "rb")
+    ipfs_file = open("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip', "rb")
 
-        ipfs_url = "https://api.zkdrop.xyz/api/ipfs_upload"
+    ipfs_url = "https://api.zkdrop.xyz/api/ipfs_upload"
 
-        ipfs_response = requests.post(ipfs_url, files = {"file": ipfs_file})
+    ipfs_response = requests.post(ipfs_url, files = {"file": ipfs_file})
 
-        os.remove("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip') 
+    os.remove("encrypted_files_tmp/" + file_name + "_" + data_md5_hash + '.zip') 
 
-        print(ipfs_response)
+    print(ipfs_response)
 
-        ui.ui_logging("IPFS data:\n" + str(ipfs_response.json()))
-        
-        URL = "https://api.zkdrop.xyz/api/publish/" + sender_address + "/" + recipient_address + "/" + ipfs_response.json()["Hash"]
+    ui.ui_logging("IPFS data:\n" + str(ipfs_response.json()))
 
-        # sending get request and saving the response as response object
-        try:
-            r = requests.get(url = URL,timeout=5)
-            r.raise_for_status()
-        except requests.exceptions.HTTPError as errh:
-            print ("Http Error:",errh)
-        except requests.exceptions.ConnectionError as errc:
-            print ("Error Connecting:",errc)
-        except requests.exceptions.Timeout as errt:
-            print ("Timeout Error:",errt)
-        except requests.exceptions.RequestException as err:
-            print ("OOps: Something Else",err)
+    try:
+        signature = aleo_python.sign_message(aleo_private_key, ipfs_response.json()["Hash"])
+        # print(signature)
+        # print(json.loads(signature)["Signature"])
+
+    except ValueError as err_message:
+        ui.ui_logging(err_message)
+    
+    URL = "https://api.zkdrop.xyz/api/publish/" + sender_address + "/" + recipient_address + "/" + ipfs_response.json()["Hash"] + "/" + json.loads(signature)["Signature"]
+
+    # sending get request and saving the response as response object
+    try:
+        r = requests.get(url = URL,timeout=5)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        print ("Http Error:",errh)
+    except requests.exceptions.ConnectionError as errc:
+        print ("Error Connecting:",errc)
+    except requests.exceptions.Timeout as errt:
+        print ("Timeout Error:",errt)
+    except requests.exceptions.RequestException as err:
+        print ("OOps: Something Else",err)
 
 def message_listener():
 
@@ -670,11 +949,11 @@ def message_listener():
 
     while True:
         
-        # python 3.9 version aleo_address = load_aleo_address(ui.label_AccountName.text().removeprefix('Account Name: '))
+        # python 3.9 version aleo_address = load_aleo_address(ui.label_AccountName.text().removeprefix('Aleo.ID: '))
 
         # python 3.7 version
 
-        aleo_address = load_aleo_address(ui.label_AccountName.text().replace('Account Name: ',''))
+        aleo_address = load_aleo_address(ui.label_AccountName.text().replace('Aleo.ID: ',''))
 
         ui.ui_logging("checking api for address: " + aleo_address )
 
@@ -716,7 +995,7 @@ def message_listener():
                     
                     if len(sql_select.fetchall()) == 0:
                         ui.ui_logging("File is not exists, adding to local database")            
-                        sql_insert = "INSERT INTO ZKDROP_FILES (id, sender_address, aleo_address, file_ipfs, status ) values(%d, \"%s\", \"%s\", \"%s\", \"%s\")" % (0, data_item["sender_address"], data_item["recipient_address"], data_item["ipfs_hash"], "unread")
+                        sql_insert = "INSERT INTO ZKDROP_FILES (id, sender_address, aleo_address, file_ipfs, status, signature ) values(%d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\")" % (0, data_item["sender_address"], data_item["recipient_address"], data_item["ipfs_hash"], "unread", data_item["signature"])
                         sqlite_db.execute(sql_insert)
 
                         query = "SELECT * FROM ZKDROP_FILES WHERE aleo_address == \"%s\" AND status == \"unread\"" % (aleo_address)
@@ -748,7 +1027,8 @@ def init_app():
                     "file_ipfs"	TEXT,
                     "status"	TEXT,
 	                "sender_address"	TEXT,
-	                "file_name"	TEXT
+	                "file_name"	TEXT,
+	                "signature"	TEXT
                 )
                 ''')
                             

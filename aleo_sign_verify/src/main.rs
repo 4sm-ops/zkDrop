@@ -21,6 +21,8 @@ use snarkvm_console::{account::{Address, PrivateKey, Signature}, network::Testne
 
 use snarkvm::prelude::test_crypto_rng;
 
+use snarkvm_utilities::TestRng;
+
 use std::env;
 use std::str;
 
@@ -43,7 +45,9 @@ use core::str::FromStr;
 
 fn aleo_sign_message(priv_key: &str, message: &str) {
 
-    let rng = &mut test_crypto_rng();
+    let rng = &mut TestRng::default();
+
+    // let rng = &mut test_crypto_rng();
 
     // Get Private Key from priv_key string
     let private_key = PrivateKey::<Testnet3>::from_str(priv_key).unwrap();
