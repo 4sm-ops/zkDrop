@@ -1,5 +1,51 @@
 # zkDrop - Digital ID and secure file sharing concept based on Aleo zk features
 
+## Installation instructions
+
+Repos: 
+- https://github.com/4sm-ops/aleo_python - Aleo Rust libraries for Python
+- https://github.com/4sm-ops/zkDrop - zkDrop application
+
+Tested environment:
+- Python 3.7
+- rustc 1.66
+- maturin [latest version]
+- Operating systems:  
+ * Ubuntu 22.04.1 LTS
+ * MacOS Big Sur 11.2.3 (Apple M1)
+
+1. Install `aleo_python` package
+
+```
+$ git clone https://github.com/4sm-ops/aleo_python.git
+$ cd aleo_python
+$ python3.7 -m venv .env
+$ source .env/bin/activate
+$ python3.7 -m pip install maturin
+$ maturin develop
+```
+
+1.1 Strongly recommended to test `aleo_python` package
+
+```
+$ python3.7
+>>> import aleo_python
+>>> aleo_python.new_keys()
+'{"AleoPrivateKey":"APrivateKey1zkp6jsksQrTZc5C5QLguxfinfjmb8WxLhEvjsEw7kd7zNoa","AleoViewKey":"AViewKey1fML5ZX9x2QbY8VBLfpwywGRob6T6ieKTVHEK1RnLHCxr","AleoAddress":"aleo15yn2z3cuafq0t5c805daqq5r5669uru8udwhp28nahs73vvw3sfqvqvct6"}'
+
+>>> exit()
+```
+
+2. Install and run zkDrop application
+
+```
+$ cd ../
+$ git clone https://github.com/4sm-ops/zkDrop.git
+$ cd zkDrop
+$ python3.7 -m pip install -r requirements.txt
+$ python3.7 zkdrop_qt.py
+```
+
 ## Backlog:
 
 https://mercurial-origami-04e.notion.site/a6536fb7ac2642c1834b4c57a3d0ee63?v=ac231823e34b4622b17569a7f6629c58
